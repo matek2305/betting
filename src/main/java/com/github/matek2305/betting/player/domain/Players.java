@@ -6,7 +6,5 @@ public interface Players {
 
     Option<Player> findBy(PlayerId playerId);
 
-    void save(Player player);
-
-    void publish(PlayerEvent result);
+    Player publish(PlayerEvent result);
 }

@@ -5,12 +5,12 @@ import java.time.ZonedDateTime;
 public interface Match {
 
     default MatchId matchId() {
-        return getMatchInformation().matchId();
+        return matchInformation().matchId();
     }
 
     default ZonedDateTime startDateTime() {
-        return getMatchInformation().startDateTime();
+        return matchInformation().startDateTime();
     }
 
-    MatchInformation getMatchInformation();
+    MatchInformation matchInformation();
 }

@@ -3,11 +3,11 @@ package com.github.matek2305.betting.player.domain
 import com.github.matek2305.betting.date.DateProvider
 import com.github.matek2305.betting.match.domain.IncomingMatch
 import com.github.matek2305.betting.match.domain.Match
+import com.github.matek2305.betting.match.domain.MatchBettingPolicy
 import com.github.matek2305.betting.match.domain.MatchId
 import com.github.matek2305.betting.match.domain.MatchInformation
 import com.github.matek2305.betting.match.domain.MatchRivals
 import com.github.matek2305.betting.match.domain.MatchScore
-import com.github.matek2305.betting.match.domain.PlayerBets
 import com.github.matek2305.betting.match.infrastructure.InMemoryMatchRepository
 import com.github.matek2305.betting.player.infrastructure.InMemoryPlayers
 import org.apache.commons.lang3.RandomStringUtils
@@ -34,39 +34,58 @@ class BettingTest extends Specification {
         
         and:
             def matchStartDateTime = ZonedDateTime.parse('2021-02-02T21:00Z')
-            def match = incomingMatch(matchStartDateTime)
-            def player = playerWithDefaultBettingPolicy()
+            def match = incomingMatchWithDefaultPolicy(matchStartDateTime)
+            def player = randomPlayer()
         
         when:
-            def result = makeBet(player, match)
+            def bet = makeBet(player, match)
         
         then:
-            result.class == PlayerEvent.PlayerBetMade
+            def playerAfterBetting = players.findBy(player.playerId())
+            playerAfterBetting.get().bets().bets()[match.matchId()] == bet
     }
     
-    private PlayerEvent makeBet(Player player, Match match) {
-        return betting.makeBet(new MakeBetCommand(player.playerId(), match.matchId(), randomScore()))
+    def "player should not be able to bet on match when it has started"() {
+        given:
+            def currentDateTime = ZonedDateTime.parse('2021-02-02T21:02Z')
+            dateProviderMock.getCurrentDateTime() >> currentDateTime
+        
+        and:
+            def matchStartDateTime = ZonedDateTime.parse('2021-02-02T21:00Z')
+            def match = incomingMatchWithDefaultPolicy(matchStartDateTime)
+            def player = randomPlayer()
+        
+        when:
+            makeBet(player, match)
+        
+        then:
+            def playerAfterBetting = players.findBy(player.playerId())
+            playerAfterBetting.get().bets().bets().isEmpty()
     }
     
-    private Player playerWithDefaultBettingPolicy() {
-        def player = new Player(randomPlayerId(), new BettingPolicy.Default(dateProviderMock))
-        players.save(player)
-        return player
+    private MatchScore makeBet(Player player, Match match) {
+        def bet = randomScore()
+        betting.makeBet(new MakeBetCommand(player.playerId(), match.matchId(), bet))
+        return bet
     }
     
-    private static PlayerId randomPlayerId() {
-        return new PlayerId(UUID.randomUUID())
+    private Player randomPlayer() {
+        return players.publish(new PlayerEvent.NewPlayerCreated(randomPlayerId()))
     }
     
-    private IncomingMatch incomingMatch(ZonedDateTime startDateTime) {
+    private IncomingMatch incomingMatchWithDefaultPolicy(ZonedDateTime startDateTime) {
         def match = new IncomingMatch(
                 new MatchInformation(
                         randomMatchId(),
                         startDateTime,
                         randomRivals()),
-                new PlayerBets())
+                new MatchBettingPolicy.Default(dateProviderMock))
         matches.save(match)
         return match
+    }
+    
+    private static PlayerId randomPlayerId() {
+        return new PlayerId(UUID.randomUUID())
     }
     
     private static MatchId randomMatchId() {

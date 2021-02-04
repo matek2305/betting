@@ -1,15 +1,14 @@
-package com.github.matek2305.betting.player.domain;
+package com.github.matek2305.betting.match.domain;
 
 import com.github.matek2305.betting.date.DateProvider;
-import com.github.matek2305.betting.match.domain.IncomingMatch;
 import lombok.RequiredArgsConstructor;
 
-interface BettingPolicy {
+public interface MatchBettingPolicy {
 
     boolean playerCanBet(IncomingMatch match);
 
     @RequiredArgsConstructor
-    class Default implements BettingPolicy {
+    class Default implements MatchBettingPolicy {
 
         private final DateProvider dateProvider;
 

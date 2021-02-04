@@ -1,23 +1,16 @@
 package com.github.matek2305.betting.match.domain;
 
-import com.github.matek2305.betting.player.domain.PlayerEvent.PlayerBetMade;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class IncomingMatch implements Match {
 
+    @Getter
     private final MatchInformation matchInformation;
-    private final PlayerBets bets;
+    private final MatchBettingPolicy bettingPolicy;
 
-    @Override
-    public MatchInformation getMatchInformation() {
-        return matchInformation;
-    }
-
-    public IncomingMatch handle(PlayerBetMade playerBetMade) {
-        return new IncomingMatch(
-                matchInformation,
-                bets.add(playerBetMade.playerId(), playerBetMade.bet())
-        );
+    public boolean isBettingAllowed() {
+        return bettingPolicy.playerCanBet(this);
     }
 }

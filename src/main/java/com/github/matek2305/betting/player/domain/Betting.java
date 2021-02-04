@@ -10,12 +10,11 @@ class Betting {
     private final FindIncomingMatch findIncomingMatch;
     private final Players players;
 
-    public PlayerEvent makeBet(MakeBetCommand command) {
+    public void makeBet(MakeBetCommand command) {
         var match = find(command.matchId());
         var player = find(command.playerId());
         var result = player.placeBet(match, command.bet());
         players.publish(result);
-        return result;
     }
 
     private IncomingMatch find(MatchId matchId) {

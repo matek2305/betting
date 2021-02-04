@@ -9,6 +9,11 @@ public interface PlayerEvent {
     PlayerId playerId();
 
     @Value
+    class NewPlayerCreated implements PlayerEvent {
+        PlayerId playerId;
+    }
+
+    @Value
     class PlayerBetMade implements PlayerEvent {
         PlayerId playerId;
         MatchId matchId;

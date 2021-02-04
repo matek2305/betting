@@ -6,15 +6,19 @@ import com.github.matek2305.betting.match.domain.MatchScore;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@Getter
 @RequiredArgsConstructor
 public class Player {
 
-    @Getter
     private final PlayerId playerId;
-    private final BettingPolicy bettingPolicy;
+    private final PlayerBets bets;
+
+    public Player(PlayerId playerId) {
+        this(playerId, new PlayerBets());
+    }
 
     public PlayerEvent placeBet(IncomingMatch match, MatchScore bet) {
-        if (bettingPolicy.playerCanBet(match)) {
+        if (match.isBettingAllowed()) {
             return betSuccessful(match.matchId(), bet);
         } else {
             return betRejected(match.matchId());
