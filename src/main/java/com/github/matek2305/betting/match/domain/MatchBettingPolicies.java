@@ -4,8 +4,7 @@ import com.github.matek2305.betting.date.DateProvider;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public
-class MatchBettingPolicies {
+public class MatchBettingPolicies {
 
     private final DateProvider dateProvider;
 

@@ -3,7 +3,7 @@ package com.github.matek2305.betting.match.domain;
 import com.github.matek2305.betting.date.DateProvider;
 import lombok.RequiredArgsConstructor;
 
-public interface MatchBettingPolicy {
+interface MatchBettingPolicy {
 
     boolean playerCanBet(IncomingMatch match);
 

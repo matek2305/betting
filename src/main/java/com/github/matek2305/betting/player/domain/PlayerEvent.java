@@ -31,4 +31,12 @@ public interface PlayerEvent extends PublishableEvent {
         PlayerId playerId;
         MatchId matchId;
     }
+
+    @Value
+    class PointsRewarded implements PlayerEvent {
+        UUID eventId = UUID.randomUUID();
+        PlayerId playerId;
+        MatchId matchId;
+        int points;
+    }
 }

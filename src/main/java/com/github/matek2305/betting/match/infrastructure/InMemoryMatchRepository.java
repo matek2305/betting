@@ -51,7 +51,8 @@ public class InMemoryMatchRepository implements MatchRepository, FindIncomingMat
                         newMatchAdded.matchId(),
                         newMatchAdded.startDateTime(),
                         newMatchAdded.rivals()),
-                bettingPolicies.bettingAllowedBeforeMatchStartOnly());
+                bettingPolicies.bettingAllowedBeforeMatchStartOnly(),
+                MatchRewardingPolicy.defaultRewards());
 
         matches.put(match.matchId(), match);
         return match;

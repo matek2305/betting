@@ -23,5 +23,6 @@ public interface MatchEvent extends PublishableEvent {
         UUID eventId = UUID.randomUUID();
         MatchId matchId;
         MatchScore result;
+        MatchRewards rewards;
     }
 }

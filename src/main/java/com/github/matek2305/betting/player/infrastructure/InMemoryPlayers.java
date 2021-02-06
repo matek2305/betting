@@ -11,7 +11,9 @@ import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
@@ -26,6 +28,14 @@ public class InMemoryPlayers implements Players {
     @Override
     public Option<Player> findBy(PlayerId playerId) {
         return Option.of(players.get(playerId));
+    }
+
+    @Override
+    public Set<Player> findByBetMatchId(MatchId matchId) {
+        return players.values()
+                .stream()
+                .filter(player -> player.bets().bets().containsKey(matchId))
+                .collect(Collectors.toSet());
     }
 
     @Override
