@@ -1,1 +1,2 @@
-# betting
+# betting ![GitHub Actions build](https://github.com/matek2305/betting/workflows/Java%20CI%20with%20Maven/badge.svg)
+This projects is used to learn techniques like Domain Driven Design, Event-driven architecture, CQRS, Event Sourcing and a lot more. I expect it to rapidly evlove over time as I will discover new things abot mentioned toolset. The idea is to implement application that will allow its users to predict football matches results and haven fun together during events like World Cup or Champions League.
