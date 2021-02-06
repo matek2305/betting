@@ -11,6 +11,8 @@ import spock.lang.Subject
 
 import java.time.ZonedDateTime
 
+import static java.time.ZonedDateTime.parse
+
 class BettingTest extends DomainSpecification {
     
     def dateProviderMock = Mock(DateProvider)
@@ -26,11 +28,10 @@ class BettingTest extends DomainSpecification {
     
     def "player should be able to bet on incoming match"() {
         given:
-            def currentDateTime = ZonedDateTime.parse('2021-01-31T18:02Z')
-            dateProviderMock.getCurrentDateTime() >> currentDateTime
+            setCurrentDateTime(parse('2021-01-31T18:02Z'))
         
         and:
-            def matchStartDateTime = ZonedDateTime.parse('2021-02-02T21:00Z')
+            def matchStartDateTime = parse('2021-02-02T21:00Z')
             def match = incomingMatchWithDefaultPolicy(matchStartDateTime)
             def player = randomPlayer()
         
@@ -46,11 +47,10 @@ class BettingTest extends DomainSpecification {
     
     def "player should not be able to bet on match when it has started"() {
         given:
-            def currentDateTime = ZonedDateTime.parse('2021-02-02T21:02Z')
-            dateProviderMock.getCurrentDateTime() >> currentDateTime
+            setCurrentDateTime(parse('2021-02-02T21:02Z'))
         
         and:
-            def matchStartDateTime = ZonedDateTime.parse('2021-02-02T21:00Z')
+            def matchStartDateTime = parse('2021-02-02T21:00Z')
             def match = incomingMatchWithDefaultPolicy(matchStartDateTime)
             def player = randomPlayer()
         
@@ -61,6 +61,10 @@ class BettingTest extends DomainSpecification {
             def event = findPublishedEvent(PlayerEvent.PlayerBetRejected)
             event.matchId() == match.matchId()
             event.playerId() == player.playerId()
+    }
+    
+    private void setCurrentDateTime(ZonedDateTime dateTime) {
+        dateProviderMock.getCurrentDateTime() >> dateTime
     }
     
     private MatchScore makeBet(Player player, Match match) {
