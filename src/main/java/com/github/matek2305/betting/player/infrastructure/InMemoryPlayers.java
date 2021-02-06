@@ -1,5 +1,6 @@
 package com.github.matek2305.betting.player.infrastructure;
 
+import com.github.matek2305.betting.commons.EventsPublisher;
 import com.github.matek2305.betting.match.domain.MatchId;
 import com.github.matek2305.betting.match.domain.MatchScore;
 import com.github.matek2305.betting.player.domain.*;
@@ -7,6 +8,7 @@ import com.github.matek2305.betting.player.domain.PlayerEvent.NewPlayerCreated;
 import com.github.matek2305.betting.player.domain.PlayerEvent.PlayerBetMade;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.control.Option;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,9 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
 
+@RequiredArgsConstructor
 public class InMemoryPlayers implements Players {
 
-    private Map<PlayerId, Player> players = new ConcurrentHashMap<>();
+    private final Map<PlayerId, Player> players = new ConcurrentHashMap<>();
+
+    private final EventsPublisher publisher;
 
     @Override
     public Option<Player> findBy(PlayerId playerId) {
@@ -25,10 +30,12 @@ public class InMemoryPlayers implements Players {
 
     @Override
     public Player publish(PlayerEvent event) {
-        return Match(event).of(
+        var player = Match(event).of(
                 Case($(instanceOf(NewPlayerCreated.class)), this::saveNewPlayer),
-                Case($(), this::handleNextEvent)
-        );
+                Case($(), this::handleNextEvent));
+
+        publisher.publish(event);
+        return player;
     }
 
     private Player saveNewPlayer(NewPlayerCreated newPlayerCreated) {

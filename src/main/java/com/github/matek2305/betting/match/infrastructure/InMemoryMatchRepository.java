@@ -1,5 +1,6 @@
 package com.github.matek2305.betting.match.infrastructure;
 
+import com.github.matek2305.betting.commons.EventsPublisher;
 import com.github.matek2305.betting.match.domain.Match;
 import com.github.matek2305.betting.match.domain.*;
 import com.github.matek2305.betting.match.domain.MatchEvent.MatchFinished;
@@ -20,6 +21,7 @@ public class InMemoryMatchRepository implements MatchRepository, FindIncomingMat
     private final Map<MatchId, Match> matches = new ConcurrentHashMap<>();
 
     private final MatchBettingPolicies bettingPolicies;
+    private final EventsPublisher publisher;
 
     @Override
     public Option<Match> findBy(MatchId matchId) {
@@ -28,9 +30,12 @@ public class InMemoryMatchRepository implements MatchRepository, FindIncomingMat
 
     @Override
     public Match publish(MatchEvent event) {
-        return Match(event).of(
+        var match = Match(event).of(
                 Case($(instanceOf(NewMatchAdded.class)), this::createNewIncomingMatch),
                 Case($(instanceOf(MatchFinished.class)), this::finishMatch));
+
+        publisher.publish(event);
+        return match;
     }
 
     @Override

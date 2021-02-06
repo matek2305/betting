@@ -1,5 +1,7 @@
 package com.github.matek2305.betting.player.domain
 
+import com.github.matek2305.betting.commons.EventsPublisher
+import com.github.matek2305.betting.commons.PublishableEvent
 import com.github.matek2305.betting.date.DateProvider
 import com.github.matek2305.betting.match.domain.*
 import com.github.matek2305.betting.match.infrastructure.InMemoryMatchRepository
@@ -11,15 +13,21 @@ import spock.lang.Subject
 
 import java.time.ZonedDateTime
 
-class BettingTest extends Specification {
+class BettingTest extends Specification implements EventsPublisher {
     
     def dateProviderMock = Mock(DateProvider)
     
-    def matches = new InMemoryMatchRepository(new MatchBettingPolicies(dateProviderMock))
-    def players = new InMemoryPlayers()
+    def matches = new InMemoryMatchRepository(new MatchBettingPolicies(dateProviderMock), this)
+    def players = new InMemoryPlayers(this)
     
     @Subject
     def betting = new Betting(matches, players)
+    
+    def publishedEvents = [] as Set<PublishableEvent>
+    
+    void setup() {
+        publishedEvents.clear()
+    }
     
     def "player should be able to bet on incoming match"() {
         given:
@@ -35,8 +43,10 @@ class BettingTest extends Specification {
             def bet = makeBet(player, match)
         
         then:
-            def playerAfterBetting = players.findBy(player.playerId())
-            playerAfterBetting.get().bets().bets()[match.matchId()] == bet
+            def event = findPublishedEvent(PlayerEvent.PlayerBetMade)
+            event.matchId() == match.matchId()
+            event.playerId() == player.playerId()
+            event.bet() == bet
     }
     
     def "player should not be able to bet on match when it has started"() {
@@ -53,8 +63,18 @@ class BettingTest extends Specification {
             makeBet(player, match)
         
         then:
-            def playerAfterBetting = players.findBy(player.playerId())
-            playerAfterBetting.get().bets().bets().isEmpty()
+            def event = findPublishedEvent(PlayerEvent.PlayerBetRejected)
+            event.matchId() == match.matchId()
+            event.playerId() == player.playerId()
+    }
+    
+    @Override
+    void publish(PublishableEvent event) {
+        publishedEvents.add(event)
+    }
+    
+    private <T extends PublishableEvent> T findPublishedEvent(Class<T> eventClass) {
+        return publishedEvents.find { eventClass == it.class } as T
     }
     
     private MatchScore makeBet(Player player, Match match) {
