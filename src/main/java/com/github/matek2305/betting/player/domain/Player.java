@@ -3,7 +3,6 @@ package com.github.matek2305.betting.player.domain;
 import com.github.matek2305.betting.match.domain.IncomingMatch;
 import com.github.matek2305.betting.match.domain.MatchId;
 import com.github.matek2305.betting.match.domain.MatchScore;
-import com.github.matek2305.betting.player.domain.PlayerEvent.BetNotFound;
 import com.github.matek2305.betting.player.domain.PlayerEvent.PointsRewarded;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -37,11 +36,7 @@ public class Player {
         }
     }
 
-    PlayerEvent rewardPoints(RewardPlayersCommand command) {
-        if (!bets.bets().containsKey(command.matchId())) {
-            return new BetNotFound(playerId, command.matchId());
-        }
-
+    PointsRewarded rewardPoints(RewardPlayersCommand command) {
         int scoredPoints = Match(bets.bets().get(command.matchId())).of(
                 Case($(command.result()), () -> command.rewards().pointsForExactResultHit()),
                 Case($(winningTeamHit(command.result())), () -> command.rewards().pointsForWinningTeamHit()),

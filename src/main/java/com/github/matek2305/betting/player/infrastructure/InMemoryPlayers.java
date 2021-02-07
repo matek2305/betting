@@ -56,7 +56,8 @@ public class InMemoryPlayers implements Players {
     private Player handleNextEvent(PlayerEvent event) {
         return Match(event).of(
                 Case($(instanceOf(PlayerBetMade.class)), this::savePlayerBet),
-                Case($(instanceOf(PointsRewarded.class)), this::rewardPoints));
+                Case($(instanceOf(PointsRewarded.class)), this::rewardPoints),
+                Case($(), () -> players.get(event.playerId())));
     }
 
     private Player savePlayerBet(PlayerBetMade playerBetMade) {
