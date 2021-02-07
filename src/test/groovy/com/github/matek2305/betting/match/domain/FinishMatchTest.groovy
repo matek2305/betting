@@ -33,6 +33,13 @@ class FinishMatchTest extends DomainSpecification {
             def event = findPublishedEvent(MatchEvent.MatchFinished)
             event.matchId() == match.matchId()
             event.result() == result
+        
+        and:
+            def defaultRewards = MatchRewardingPolicy.defaultRewards()
+            event.rewards().pointsForExactResultHit() == defaultRewards.pointsForExactResultHit
+            event.rewards().pointsForWinningTeamHit() == defaultRewards.pointsForWinningTeamHit
+            event.rewards().pointsForDrawHit() == defaultRewards.pointsForDraw
+            event.rewards().pointsForMissingBet() == defaultRewards.pointsForMissingBet
     }
     
     private MatchScore finishMatch(Match match) {

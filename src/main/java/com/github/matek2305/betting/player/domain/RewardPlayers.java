@@ -8,8 +8,9 @@ public class RewardPlayers {
     private final Players players;
 
     public void give(RewardPlayersCommand command) {
-        players
-                .findByBetMatchId(command.matchId())
-                .forEach(player -> players.publish(player.rewardPoints(command)));
+        players.findByBetMatchId(command.matchId())
+                .stream()
+                .map(player -> player.rewardPoints(command))
+                .forEach(players::publish);
     }
 }

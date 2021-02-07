@@ -5,13 +5,13 @@ import spock.lang.Specification
 import java.util.function.Function
 
 class DomainSpecification extends Specification {
-    
+
     Set<PublishableEvent> publishedEvents = []
-    
+
     void setup() {
         publishedEvents.clear()
     }
-    
+
     def <T> T withEventsPublisher(Function<EventsPublisher, T> createFunction) {
         return createFunction.apply(new EventsPublisher() {
             @Override
@@ -20,7 +20,11 @@ class DomainSpecification extends Specification {
             }
         })
     }
-    
+
+    def <T extends PublishableEvent> Set<T> findAllPublishedEvents(Class<T> eventClass) {
+        return publishedEvents.findAll { it.class == eventClass } as Set<T>
+    }
+
     def <T extends PublishableEvent> T findPublishedEvent(Class<T> eventClass) {
         return publishedEvents.find { it.class == eventClass } as T
     }

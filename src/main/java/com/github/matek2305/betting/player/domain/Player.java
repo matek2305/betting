@@ -34,7 +34,7 @@ public class Player {
         int scoredPoints = Match(bets.bets().get(command.matchId())).of(
                 Case($(command.result()), () -> command.rewards().pointsForExactResultHit()),
                 Case($(winningTeamHit(command.result())), () -> command.rewards().pointsForWinningTeamHit()),
-                Case($(MatchScore::draw), () -> command.rewards().pointsForDrawHit()),
+                Case($(draw(command.result())), () -> command.rewards().pointsForDrawHit()),
                 Case($(), () -> command.rewards().pointsForMissingBet()));
 
         return new PointsRewarded(playerId, command.matchId(), scoredPoints);
@@ -52,5 +52,9 @@ public class Player {
         Predicate<MatchScore> homeTeamWin = bet -> bet.homeTeamWon() && result.homeTeamWon();
         Predicate<MatchScore> awayTeamWin = bet -> bet.awayTeamWon() && result.awayTeamWon();
         return homeTeamWin.or(awayTeamWin);
+    }
+
+    private static Predicate<MatchScore> draw(MatchScore result) {
+        return bet -> bet.draw() && result.draw();
     }
 }
