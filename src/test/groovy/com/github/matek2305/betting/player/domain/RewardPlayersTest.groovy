@@ -50,6 +50,27 @@ class RewardPlayersTest extends DomainSpecification {
             new MatchScore(3, 3) || POINTS_FOR_MISSED_BET       || POINTS_FOR_MISSED_BET       || POINTS_FOR_DRAW       || POINTS_FOR_MISSED_BET
     }
     
+    def "should reward player only once"() {
+        given:
+            def matchId = new MatchId(UUID.randomUUID())
+            def playerId = randomPlayerWithBet(matchId, new MatchScore(1, 2))
+        
+        when:
+            giveRewards(matchId, new MatchScore(1, 2))
+        
+        and:
+            giveRewards(matchId, new MatchScore(1, 2))
+    
+        then:
+            def events = findAllPublishedEvents(PlayerEvent.PointsRewarded)
+            events.size() == 1
+        
+        and:
+            events[0].matchId() == matchId
+            events[0].playerId() == playerId
+            events[0].points() == POINTS_FOR_EXACT_RESULT_HIT
+    }
+    
     private void giveRewards(MatchId matchId, MatchScore result) {
         rewardPlayers.give(new RewardPlayersCommand(matchId, result, defaultRewards()))
     }

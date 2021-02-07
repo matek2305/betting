@@ -6,6 +6,7 @@ import com.github.matek2305.betting.match.domain.MatchScore;
 import com.github.matek2305.betting.player.domain.*;
 import com.github.matek2305.betting.player.domain.PlayerEvent.NewPlayerCreated;
 import com.github.matek2305.betting.player.domain.PlayerEvent.PlayerBetMade;
+import com.github.matek2305.betting.player.domain.PlayerEvent.PointsRewarded;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +56,7 @@ public class InMemoryPlayers implements Players {
     private Player handleNextEvent(PlayerEvent event) {
         return Match(event).of(
                 Case($(instanceOf(PlayerBetMade.class)), this::savePlayerBet),
-                Case($(), () -> players.get(event.playerId())));
+                Case($(instanceOf(PointsRewarded.class)), this::rewardPoints));
     }
 
     private Player savePlayerBet(PlayerBetMade playerBetMade) {
@@ -65,6 +66,24 @@ public class InMemoryPlayers implements Players {
                 .put(playerBetMade.matchId(), playerBetMade.bet())
                 .build();
 
-        return new Player(player.playerId(), new PlayerBets(bets));
+        return player.withBets(new PlayerBets(bets));
+    }
+
+    private Player rewardPoints(PointsRewarded pointsRewarded) {
+        var player = players.get(pointsRewarded.playerId());
+        var bet = player.bets().bets().get(pointsRewarded.matchId());
+
+        var bets = player.bets().bets().entrySet()
+                .stream()
+                .filter(entry -> entry.getKey() != pointsRewarded.matchId())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        var points = new ImmutableMap.Builder<MatchId, BetPoints>()
+                .putAll(player.points().points())
+                .put(pointsRewarded.matchId(), new BetPoints(bet, pointsRewarded.points()))
+                .build();
+
+        return player.withBets(new PlayerBets(bets)).withPoints(new PlayerPoints(points));
+
     }
 }

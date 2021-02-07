@@ -39,4 +39,11 @@ public interface PlayerEvent extends PublishableEvent {
         MatchId matchId;
         int points;
     }
+
+    @Value
+    class BetNotFound implements PlayerEvent {
+        UUID eventId = UUID.randomUUID();
+        PlayerId playerId;
+        MatchId matchId;
+    }
 }

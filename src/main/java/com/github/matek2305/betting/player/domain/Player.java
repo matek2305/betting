@@ -3,9 +3,11 @@ package com.github.matek2305.betting.player.domain;
 import com.github.matek2305.betting.match.domain.IncomingMatch;
 import com.github.matek2305.betting.match.domain.MatchId;
 import com.github.matek2305.betting.match.domain.MatchScore;
+import com.github.matek2305.betting.player.domain.PlayerEvent.BetNotFound;
 import com.github.matek2305.betting.player.domain.PlayerEvent.PointsRewarded;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.With;
 
 import java.util.function.Predicate;
 
@@ -16,10 +18,15 @@ import static io.vavr.API.*;
 public class Player {
 
     private final PlayerId playerId;
+
+    @With
     private final PlayerBets bets;
 
+    @With
+    private final PlayerPoints points;
+
     public Player(PlayerId playerId) {
-        this(playerId, new PlayerBets());
+        this(playerId, new PlayerBets(), new PlayerPoints());
     }
 
     PlayerEvent placeBet(IncomingMatch match, MatchScore bet) {
@@ -30,7 +37,11 @@ public class Player {
         }
     }
 
-    PointsRewarded rewardPoints(RewardPlayersCommand command) {
+    PlayerEvent rewardPoints(RewardPlayersCommand command) {
+        if (!bets.bets().containsKey(command.matchId())) {
+            return new BetNotFound(playerId, command.matchId());
+        }
+
         int scoredPoints = Match(bets.bets().get(command.matchId())).of(
                 Case($(command.result()), () -> command.rewards().pointsForExactResultHit()),
                 Case($(winningTeamHit(command.result())), () -> command.rewards().pointsForWinningTeamHit()),
