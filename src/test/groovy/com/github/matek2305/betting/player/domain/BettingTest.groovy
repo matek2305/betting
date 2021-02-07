@@ -32,16 +32,16 @@ class BettingTest extends DomainSpecification {
         
         and:
             def matchStartDateTime = parse('2021-02-02T21:00Z')
-            def match = incomingMatchWithDefaultPolicy(matchStartDateTime)
-            def player = randomPlayer()
+            def matchId = randomIncomingMatch(matchStartDateTime)
+            def playerId = randomPlayer()
         
         when:
-            def bet = makeBet(player, match)
+            def bet = makeBet(playerId, matchId)
         
         then:
             def event = findPublishedEvent(PlayerEvent.PlayerBetMade)
-            event.matchId() == match.matchId()
-            event.playerId() == player.playerId()
+            event.matchId() == matchId
+            event.playerId() == playerId
             event.bet() == bet
     }
     
@@ -51,34 +51,38 @@ class BettingTest extends DomainSpecification {
         
         and:
             def matchStartDateTime = parse('2021-02-02T21:00Z')
-            def match = incomingMatchWithDefaultPolicy(matchStartDateTime)
-            def player = randomPlayer()
+            def matchId = randomIncomingMatch(matchStartDateTime)
+            def playerId = randomPlayer()
         
         when:
-            makeBet(player, match)
+            makeBet(playerId, matchId)
         
         then:
             def event = findPublishedEvent(PlayerEvent.PlayerBetRejected)
-            event.matchId() == match.matchId()
-            event.playerId() == player.playerId()
+            event.matchId() == matchId
+            event.playerId() == playerId
     }
     
     private void setCurrentDateTime(ZonedDateTime dateTime) {
         dateProviderMock.getCurrentDateTime() >> dateTime
     }
     
-    private MatchScore makeBet(Player player, Match match) {
+    private MatchScore makeBet(PlayerId playerId, MatchId matchId) {
         def bet = randomScore()
-        betting.makeBet(new MakeBetCommand(player.playerId(), match.matchId(), bet))
+        betting.makeBet(new MakeBetCommand(playerId, matchId, bet))
         return bet
     }
     
-    private Player randomPlayer() {
-        return players.publish(new PlayerEvent.NewPlayerCreated(randomPlayerId()))
+    private PlayerId randomPlayer() {
+        var playerId = randomPlayerId()
+        players.publish(new PlayerEvent.NewPlayerCreated(playerId))
+        return playerId
     }
     
-    private Match incomingMatchWithDefaultPolicy(ZonedDateTime startDateTime) {
-        return matches.publish(new MatchEvent.NewMatchAdded(randomMatchId(), startDateTime, randomRivals()));
+    private MatchId randomIncomingMatch(ZonedDateTime startDateTime) {
+        def matchId = randomMatchId()
+        matches.publish(new MatchEvent.NewMatchAdded(matchId, startDateTime, randomRivals()))
+        return matchId
     }
     
     private static PlayerId randomPlayerId() {

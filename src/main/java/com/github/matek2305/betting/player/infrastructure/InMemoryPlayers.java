@@ -39,33 +39,32 @@ public class InMemoryPlayers implements Players {
     }
 
     @Override
-    public Player publish(PlayerEvent event) {
+    public void publish(PlayerEvent event) {
         var player = Match(event).of(
                 Case($(instanceOf(NewPlayerCreated.class)), this::saveNewPlayer),
                 Case($(), this::handleNextEvent));
 
+        players.put(player.playerId(), player);
         publisher.publish(event);
-        return player;
     }
 
     private Player saveNewPlayer(NewPlayerCreated newPlayerCreated) {
-        return players.computeIfAbsent(newPlayerCreated.playerId(), Player::new);
+        return new Player(newPlayerCreated.playerId());
     }
 
     private Player handleNextEvent(PlayerEvent event) {
         return Match(event).of(
                 Case($(instanceOf(PlayerBetMade.class)), this::savePlayerBet),
-                Case($(), () -> players.get(event.playerId()))
-        );
+                Case($(), () -> players.get(event.playerId())));
     }
 
     private Player savePlayerBet(PlayerBetMade playerBetMade) {
-        return players.computeIfPresent(playerBetMade.playerId(), ((playerId, player) -> {
-            Map<MatchId, MatchScore> matchBets = new ImmutableMap.Builder<MatchId, MatchScore>()
-                    .putAll(player.bets().bets())
-                    .put(playerBetMade.matchId(), playerBetMade.bet())
-                    .build();
-            return new Player(playerId, new PlayerBets(matchBets));
-        }));
+        var player = players.get(playerBetMade.playerId());
+        var bets = new ImmutableMap.Builder<MatchId, MatchScore>()
+                .putAll(player.bets().bets())
+                .put(playerBetMade.matchId(), playerBetMade.bet())
+                .build();
+
+        return new Player(player.playerId(), new PlayerBets(bets));
     }
 }

@@ -6,5 +6,5 @@ public interface MatchRepository {
 
     Option<Match> findBy(MatchId matchId);
 
-    Match publish(MatchEvent event);
+    void publish(MatchEvent event);
 }

@@ -24,14 +24,14 @@ class FinishMatchTest extends DomainSpecification {
     
     def "should finish incoming match"() {
         given:
-            def match = incomingMatchWithDefaultPolicy(parse('2021-02-06T13:30Z'))
+            def matchId = randomIncomingMatch(parse('2021-02-06T13:30Z'))
         
         when:
-            def result = finishMatch(match)
+            def result = finishMatch(matchId)
         
         then:
             def event = findPublishedEvent(MatchEvent.MatchFinished)
-            event.matchId() == match.matchId()
+            event.matchId() == matchId
             event.result() == result
         
         and:
@@ -42,14 +42,16 @@ class FinishMatchTest extends DomainSpecification {
             event.rewards().pointsForMissingBet() == defaultRewards.pointsForMissingBet
     }
     
-    private MatchScore finishMatch(Match match) {
-        def command = new FinishMatchCommand(match.matchId(), randomScore())
+    private MatchScore finishMatch(MatchId matchId) {
+        def command = new FinishMatchCommand(matchId, randomScore())
         finishMatch.finishMatch(command)
         return command.result()
     }
     
-    private Match incomingMatchWithDefaultPolicy(ZonedDateTime startDateTime) {
-        return matches.publish(new MatchEvent.NewMatchAdded(randomMatchId(), startDateTime, randomRivals()));
+    private MatchId randomIncomingMatch(ZonedDateTime startDateTime) {
+        var matchId = randomMatchId()
+        matches.publish(new MatchEvent.NewMatchAdded(matchId, startDateTime, randomRivals()))
+        return matchId
     }
     
     private static MatchId randomMatchId() {

@@ -11,5 +11,5 @@ public interface Players {
 
     Set<Player> findByBetMatchId(MatchId matchId);
 
-    Player publish(PlayerEvent result);
+    void publish(PlayerEvent result);
 }

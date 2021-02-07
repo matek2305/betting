@@ -29,13 +29,13 @@ public class InMemoryMatchRepository implements MatchRepository, FindIncomingMat
     }
 
     @Override
-    public Match publish(MatchEvent event) {
+    public void publish(MatchEvent event) {
         var match = Match(event).of(
                 Case($(instanceOf(NewMatchAdded.class)), this::createNewIncomingMatch),
                 Case($(instanceOf(MatchFinished.class)), this::finishMatch));
 
+        matches.put(match.matchId(), match);
         publisher.publish(event);
-        return match;
     }
 
     @Override
@@ -46,20 +46,17 @@ public class InMemoryMatchRepository implements MatchRepository, FindIncomingMat
     }
 
     private Match createNewIncomingMatch(NewMatchAdded newMatchAdded) {
-        Match match = new IncomingMatch(
+        return new IncomingMatch(
                 new MatchInformation(
                         newMatchAdded.matchId(),
                         newMatchAdded.startDateTime(),
                         newMatchAdded.rivals()),
                 bettingPolicies.bettingAllowedBeforeMatchStartOnly(),
                 MatchRewardingPolicy.defaultRewards());
-
-        matches.put(match.matchId(), match);
-        return match;
     }
 
     private Match finishMatch(MatchFinished matchFinished) {
-        return matches.computeIfPresent(matchFinished.matchId(),
-                ((matchId, match) -> new FinishedMatch(match.matchInformation(), matchFinished.result())));
+        var match = matches.get(matchFinished.matchId());
+        return new FinishedMatch(match.matchInformation(), matchFinished.result());
     }
 }
