@@ -8,5 +8,4 @@ import java.time.ZonedDateTime;
 public class MatchInformation {
     MatchId matchId;
     ZonedDateTime startDateTime;
-    MatchRivals rivals;
 }

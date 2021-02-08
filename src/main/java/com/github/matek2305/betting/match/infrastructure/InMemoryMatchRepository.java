@@ -1,17 +1,27 @@
 package com.github.matek2305.betting.match.infrastructure;
 
 import com.github.matek2305.betting.commons.EventsPublisher;
+import com.github.matek2305.betting.match.domain.FindIncomingMatch;
+import com.github.matek2305.betting.match.domain.FinishedMatch;
+import com.github.matek2305.betting.match.domain.IncomingMatch;
 import com.github.matek2305.betting.match.domain.Match;
-import com.github.matek2305.betting.match.domain.*;
+import com.github.matek2305.betting.match.domain.MatchBettingPolicies;
+import com.github.matek2305.betting.match.domain.MatchEvent;
 import com.github.matek2305.betting.match.domain.MatchEvent.MatchFinished;
 import com.github.matek2305.betting.match.domain.MatchEvent.NewMatchAdded;
+import com.github.matek2305.betting.match.domain.MatchId;
+import com.github.matek2305.betting.match.domain.MatchInformation;
+import com.github.matek2305.betting.match.domain.MatchRepository;
+import com.github.matek2305.betting.match.domain.MatchRewardingPolicy;
 import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static io.vavr.API.*;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
 import static io.vavr.Patterns.$Some;
 import static io.vavr.Predicates.instanceOf;
 
@@ -49,8 +59,7 @@ public class InMemoryMatchRepository implements MatchRepository, FindIncomingMat
         return new IncomingMatch(
                 new MatchInformation(
                         newMatchAdded.matchId(),
-                        newMatchAdded.startDateTime(),
-                        newMatchAdded.rivals()),
+                        newMatchAdded.startDateTime()),
                 bettingPolicies.bettingAllowedBeforeMatchStartOnly(),
                 MatchRewardingPolicy.defaultRewards());
     }

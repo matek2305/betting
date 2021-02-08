@@ -3,10 +3,16 @@ package com.github.matek2305.betting.player.infrastructure;
 import com.github.matek2305.betting.commons.EventsPublisher;
 import com.github.matek2305.betting.match.domain.MatchId;
 import com.github.matek2305.betting.match.domain.MatchScore;
-import com.github.matek2305.betting.player.domain.*;
+import com.github.matek2305.betting.player.domain.BetPoints;
+import com.github.matek2305.betting.player.domain.Player;
+import com.github.matek2305.betting.player.domain.PlayerBets;
+import com.github.matek2305.betting.player.domain.PlayerEvent;
 import com.github.matek2305.betting.player.domain.PlayerEvent.NewPlayerCreated;
 import com.github.matek2305.betting.player.domain.PlayerEvent.PlayerBetMade;
 import com.github.matek2305.betting.player.domain.PlayerEvent.PointsRewarded;
+import com.github.matek2305.betting.player.domain.PlayerId;
+import com.github.matek2305.betting.player.domain.PlayerPoints;
+import com.github.matek2305.betting.player.domain.Players;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +22,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static io.vavr.API.*;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
 import static io.vavr.Predicates.instanceOf;
 
 @RequiredArgsConstructor

@@ -15,7 +15,6 @@ public interface MatchEvent extends PublishableEvent {
         UUID eventId = UUID.randomUUID();
         MatchId matchId;
         ZonedDateTime startDateTime;
-        MatchRivals rivals;
     }
 
     @Value

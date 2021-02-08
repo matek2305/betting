@@ -2,10 +2,12 @@ package com.github.matek2305.betting.player.domain
 
 import com.github.matek2305.betting.commons.DomainSpecification
 import com.github.matek2305.betting.date.DateProvider
-import com.github.matek2305.betting.match.domain.*
+import com.github.matek2305.betting.match.domain.MatchBettingPolicies
+import com.github.matek2305.betting.match.domain.MatchEvent
+import com.github.matek2305.betting.match.domain.MatchId
+import com.github.matek2305.betting.match.domain.MatchScore
 import com.github.matek2305.betting.match.infrastructure.InMemoryMatchRepository
 import com.github.matek2305.betting.player.infrastructure.InMemoryPlayers
-import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.lang3.RandomUtils
 import spock.lang.Subject
 
@@ -81,7 +83,7 @@ class BettingTest extends DomainSpecification {
     
     private MatchId randomIncomingMatch(ZonedDateTime startDateTime) {
         def matchId = randomMatchId()
-        matches.publish(new MatchEvent.NewMatchAdded(matchId, startDateTime, randomRivals()))
+        matches.publish(new MatchEvent.NewMatchAdded(matchId, startDateTime))
         return matchId
     }
     
@@ -91,12 +93,6 @@ class BettingTest extends DomainSpecification {
     
     private static MatchId randomMatchId() {
         return new MatchId(UUID.randomUUID())
-    }
-    
-    private static MatchRivals randomRivals() {
-        return new MatchRivals(
-                RandomStringUtils.randomAlphabetic(5),
-                RandomStringUtils.randomAlphabetic(5))
     }
     
     private static MatchScore randomScore() {
