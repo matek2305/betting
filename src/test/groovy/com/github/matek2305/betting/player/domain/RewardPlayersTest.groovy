@@ -9,10 +9,10 @@ import spock.lang.Subject
 
 class RewardPlayersTest extends DomainSpecification {
     
-    private static final int POINTS_FOR_EXACT_RESULT_HIT = 5
-    private static final int POINTS_FOR_WINNING_TEAM_HIT = 2
-    private static final int POINTS_FOR_DRAW = 3
-    private static final int POINTS_FOR_MISSED_BET = 0
+    private static final Points POINTS_FOR_EXACT_RESULT_HIT = Points.of(5)
+    private static final Points POINTS_FOR_WINNING_TEAM_HIT = Points.of(2)
+    private static final Points POINTS_FOR_DRAW = Points.of(3)
+    private static final Points POINTS_FOR_MISSED_BET = Points.of(0)
     
     def players = withEventsPublisher({
         new InMemoryPlayers(it)

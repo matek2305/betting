@@ -13,6 +13,7 @@ import com.github.matek2305.betting.match.domain.MatchId;
 import com.github.matek2305.betting.match.domain.MatchInformation;
 import com.github.matek2305.betting.match.domain.MatchRepository;
 import com.github.matek2305.betting.match.domain.MatchRewardingPolicy;
+import io.vavr.API;
 import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
-import static io.vavr.API.Match;
 import static io.vavr.Patterns.$Some;
 import static io.vavr.Predicates.instanceOf;
 
@@ -40,7 +40,7 @@ public class InMemoryMatchRepository implements MatchRepository, FindIncomingMat
 
     @Override
     public void publish(MatchEvent event) {
-        var match = Match(event).of(
+        var match = API.Match(event).of(
                 Case($(instanceOf(NewMatchAdded.class)), this::createNewIncomingMatch),
                 Case($(instanceOf(MatchFinished.class)), this::finishMatch));
 
@@ -50,7 +50,7 @@ public class InMemoryMatchRepository implements MatchRepository, FindIncomingMat
 
     @Override
     public Option<IncomingMatch> findIncomingMatchBy(MatchId matchId) {
-        return Match(findBy(matchId)).of(
+        return API.Match(findBy(matchId)).of(
                 Case($Some($(instanceOf(IncomingMatch.class))), Option::of),
                 Case($(), Option::none));
     }

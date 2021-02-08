@@ -1,11 +1,12 @@
 package com.github.matek2305.betting.match.domain;
 
+import com.github.matek2305.betting.player.domain.Points;
 import lombok.Value;
 
 @Value
 public class MatchRewards {
-    int pointsForExactResultHit;
-    int pointsForWinningTeamHit;
-    int pointsForDrawHit;
-    int pointsForMissingBet;
+    Points pointsForExactResultHit;
+    Points pointsForWinningTeamHit;
+    Points pointsForDrawHit;
+    Points pointsForMissingBet;
 }

@@ -39,7 +39,7 @@ public class Player {
     }
 
     PointsRewarded rewardPoints(RewardPlayersCommand command) {
-        int scoredPoints = Match(bets.bets().get(command.matchId())).of(
+        Points scoredPoints = Match(bets.bets().get(command.matchId())).of(
                 Case($(command.result()), () -> command.rewards().pointsForExactResultHit()),
                 Case($(winningTeamHit(command.result())), () -> command.rewards().pointsForWinningTeamHit()),
                 Case($(draw(command.result())), () -> command.rewards().pointsForDrawHit()),

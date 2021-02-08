@@ -37,6 +37,6 @@ public interface PlayerEvent extends PublishableEvent {
         UUID eventId = UUID.randomUUID();
         PlayerId playerId;
         MatchId matchId;
-        int points;
+        Points points;
     }
 }

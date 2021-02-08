@@ -1,14 +1,16 @@
 package com.github.matek2305.betting.match.domain;
 
+import com.github.matek2305.betting.player.domain.Points;
+
 public interface MatchRewardingPolicy {
 
-    int getPointsForExactResultHit();
+    Points getPointsForExactResultHit();
 
-    int getPointsForWinningTeamHit();
+    Points getPointsForWinningTeamHit();
 
-    int getPointsForDraw();
+    Points getPointsForDraw();
 
-    int getPointsForMissingBet();
+    Points getPointsForMissingBet();
 
     static MatchRewardingPolicy defaultRewards() {
         return new Default();
@@ -17,23 +19,23 @@ public interface MatchRewardingPolicy {
     class Default implements MatchRewardingPolicy {
 
         @Override
-        public int getPointsForExactResultHit() {
-            return 5;
+        public Points getPointsForExactResultHit() {
+            return Points.of(5);
         }
 
         @Override
-        public int getPointsForWinningTeamHit() {
-            return 2;
+        public Points getPointsForWinningTeamHit() {
+            return Points.of(2);
         }
 
         @Override
-        public int getPointsForDraw() {
-            return 3;
+        public Points getPointsForDraw() {
+            return Points.of(3);
         }
 
         @Override
-        public int getPointsForMissingBet() {
-            return 0;
+        public Points getPointsForMissingBet() {
+            return Points.of(0);
         }
     }
 }

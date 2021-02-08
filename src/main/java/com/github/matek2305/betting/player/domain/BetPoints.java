@@ -6,5 +6,5 @@ import lombok.Value;
 @Value
 public class BetPoints {
     MatchScore bet;
-    int points;
+    Points points;
 }
