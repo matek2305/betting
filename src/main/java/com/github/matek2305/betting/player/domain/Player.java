@@ -3,6 +3,7 @@ package com.github.matek2305.betting.player.domain;
 import com.github.matek2305.betting.match.domain.IncomingMatch;
 import com.github.matek2305.betting.match.domain.MatchId;
 import com.github.matek2305.betting.match.domain.MatchScore;
+import com.github.matek2305.betting.player.domain.PlayerEvent.PlayerBetMade;
 import com.github.matek2305.betting.player.domain.PlayerEvent.PointsRewarded;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class Player {
     }
 
     PointsRewarded rewardPoints(RewardPlayersCommand command) {
-        Points scoredPoints = Match(bets.bets().get(command.matchId())).of(
+        Points scoredPoints = Match(bets.get(command.matchId())).of(
                 Case($(command.result()), () -> command.rewards().pointsForExactResultHit()),
                 Case($(winningTeamHit(command.result())), () -> command.rewards().pointsForWinningTeamHit()),
                 Case($(draw(command.result())), () -> command.rewards().pointsForDrawHit()),
@@ -48,8 +49,22 @@ public class Player {
         return new PointsRewarded(playerId, command.matchId(), scoredPoints);
     }
 
+    public boolean hasBetFor(MatchId matchId) {
+        return bets.exist(matchId);
+    }
+
+    public Player handle(PlayerBetMade playerBetMade) {
+        return withBets(bets.with(playerBetMade.matchId(), playerBetMade.bet()));
+    }
+
+    public Player handle(PointsRewarded pointsRewarded) {
+        var points = new BetPoints(bets.get(pointsRewarded.matchId()), pointsRewarded.points());
+        return withBets(bets.without(pointsRewarded.matchId()))
+                .withPoints(points.with(pointsRewarded.matchId(), points));
+    }
+
     private PlayerEvent betSuccessful(MatchId matchId, MatchScore bet) {
-        return new PlayerEvent.PlayerBetMade(playerId, matchId, bet);
+        return new PlayerBetMade(playerId, matchId, bet);
     }
 
     private PlayerEvent betRejected(MatchId matchId) {

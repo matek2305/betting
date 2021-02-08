@@ -65,7 +65,8 @@ public class InMemoryMatchRepository implements MatchRepository, FindIncomingMat
     }
 
     private Match finishMatch(MatchFinished matchFinished) {
-        var match = matches.get(matchFinished.matchId());
-        return new FinishedMatch(match.matchInformation(), matchFinished.result());
+        return findIncomingMatchBy(matchFinished.matchId())
+                .map(match -> match.handle(matchFinished))
+                .getOrElseThrow(() -> new IllegalArgumentException("Match with id=" + matchFinished.matchId() + " not found"));
     }
 }

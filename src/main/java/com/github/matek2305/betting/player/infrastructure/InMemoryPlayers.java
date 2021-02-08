@@ -2,18 +2,13 @@ package com.github.matek2305.betting.player.infrastructure;
 
 import com.github.matek2305.betting.commons.EventsPublisher;
 import com.github.matek2305.betting.match.domain.MatchId;
-import com.github.matek2305.betting.match.domain.MatchScore;
-import com.github.matek2305.betting.player.domain.BetPoints;
 import com.github.matek2305.betting.player.domain.Player;
-import com.github.matek2305.betting.player.domain.PlayerBets;
 import com.github.matek2305.betting.player.domain.PlayerEvent;
 import com.github.matek2305.betting.player.domain.PlayerEvent.NewPlayerCreated;
 import com.github.matek2305.betting.player.domain.PlayerEvent.PlayerBetMade;
 import com.github.matek2305.betting.player.domain.PlayerEvent.PointsRewarded;
 import com.github.matek2305.betting.player.domain.PlayerId;
-import com.github.matek2305.betting.player.domain.PlayerPoints;
 import com.github.matek2305.betting.player.domain.Players;
-import com.google.common.collect.ImmutableMap;
 import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 
@@ -43,7 +38,7 @@ public class InMemoryPlayers implements Players {
     public Set<Player> findByBetMatchId(MatchId matchId) {
         return players.values()
                 .stream()
-                .filter(player -> player.bets().bets().containsKey(matchId))
+                .filter(player -> player.hasBetFor(matchId))
                 .collect(Collectors.toSet());
     }
 
@@ -70,29 +65,11 @@ public class InMemoryPlayers implements Players {
 
     private Player savePlayerBet(PlayerBetMade playerBetMade) {
         var player = players.get(playerBetMade.playerId());
-        var bets = new ImmutableMap.Builder<MatchId, MatchScore>()
-                .putAll(player.bets().bets())
-                .put(playerBetMade.matchId(), playerBetMade.bet())
-                .build();
-
-        return player.withBets(new PlayerBets(bets));
+        return player.handle(playerBetMade);
     }
 
     private Player rewardPoints(PointsRewarded pointsRewarded) {
         var player = players.get(pointsRewarded.playerId());
-        var bet = player.bets().bets().get(pointsRewarded.matchId());
-
-        var bets = player.bets().bets().entrySet()
-                .stream()
-                .filter(entry -> entry.getKey() != pointsRewarded.matchId())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        var points = new ImmutableMap.Builder<MatchId, BetPoints>()
-                .putAll(player.points().points())
-                .put(pointsRewarded.matchId(), new BetPoints(bet, pointsRewarded.points()))
-                .build();
-
-        return player.withBets(new PlayerBets(bets)).withPoints(new PlayerPoints(points));
-
+        return player.handle(pointsRewarded);
     }
 }

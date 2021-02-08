@@ -26,4 +26,8 @@ public final class IncomingMatch implements Match {
                         rewardingPolicy.getPointsForDraw(),
                         rewardingPolicy.getPointsForMissingBet()));
     }
+
+    public FinishedMatch handle(MatchFinished matchFinished) {
+        return new FinishedMatch(matchInformation, matchFinished.result());
+    }
 }
