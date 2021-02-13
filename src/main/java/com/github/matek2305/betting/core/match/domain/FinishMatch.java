@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 class FinishMatch {
 
-    private final FindIncomingMatch findIncomingMatch;
+    private final IncomingMatches incomingMatches;
     private final MatchRepository matchRepository;
 
     void finishMatch(FinishMatchCommand command) {
@@ -14,7 +14,7 @@ class FinishMatch {
     }
 
     private IncomingMatch get(MatchId matchId) {
-        return findIncomingMatch.findIncomingMatchBy(matchId)
+        return incomingMatches.findIncomingMatchBy(matchId)
                 .getOrElseThrow(() -> new IllegalArgumentException("Incoming match with id=" + matchId + " not found."));
     }
 }

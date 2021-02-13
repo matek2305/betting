@@ -8,4 +8,6 @@ import java.time.ZonedDateTime;
 public class MatchInformation {
     MatchId matchId;
     ZonedDateTime startDateTime;
+    Team homeTeam;
+    Team awayTeam;
 }

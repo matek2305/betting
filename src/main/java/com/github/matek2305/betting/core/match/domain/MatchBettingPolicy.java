@@ -3,9 +3,13 @@ package com.github.matek2305.betting.core.match.domain;
 import com.github.matek2305.betting.date.DateProvider;
 import lombok.RequiredArgsConstructor;
 
-interface MatchBettingPolicy {
+public interface MatchBettingPolicy {
 
     boolean playerCanBet(IncomingMatch match);
+
+    static MatchBettingPolicy bettingAllowedBeforeMatchStartOnly(DateProvider dateProvider) {
+        return new Default(dateProvider);
+    }
 
     @RequiredArgsConstructor
     class Default implements MatchBettingPolicy {

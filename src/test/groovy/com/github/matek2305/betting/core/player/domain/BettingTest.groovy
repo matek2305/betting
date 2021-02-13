@@ -1,13 +1,16 @@
 package com.github.matek2305.betting.core.player.domain
 
 import com.github.matek2305.betting.commons.DomainSpecification
+import com.github.matek2305.betting.core.match.domain.MatchBettingPolicy
+import com.github.matek2305.betting.core.match.domain.Team
 import com.github.matek2305.betting.date.DateProvider
-import com.github.matek2305.betting.core.match.domain.MatchBettingPolicies
+
 import com.github.matek2305.betting.core.match.domain.MatchEvent
 import com.github.matek2305.betting.core.match.domain.MatchId
 import com.github.matek2305.betting.core.match.domain.MatchScore
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
 import com.github.matek2305.betting.core.player.infrastructure.InMemoryPlayers
+import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.lang3.RandomUtils
 import spock.lang.Subject
 
@@ -20,7 +23,7 @@ class BettingTest extends DomainSpecification {
     def dateProviderMock = Mock(DateProvider)
     
     def matches = withEventsPublisher({
-        new InMemoryMatchRepository(new MatchBettingPolicies(dateProviderMock), it)
+        new InMemoryMatchRepository(new MatchBettingPolicy.Default(dateProviderMock), it, dateProviderMock)
     })
     
     def players = withEventsPublisher({ new InMemoryPlayers(it) })
@@ -83,19 +86,23 @@ class BettingTest extends DomainSpecification {
     
     private MatchId randomIncomingMatch(ZonedDateTime startDateTime) {
         def matchId = randomMatchId()
-        matches.publish(new MatchEvent.NewMatchAdded(matchId, startDateTime))
+        matches.publish(new MatchEvent.IncomingMatchCreated(matchId, startDateTime, randomTeam(), randomTeam()))
         return matchId
     }
     
     private static PlayerId randomPlayerId() {
-        return new PlayerId(UUID.randomUUID())
+        return PlayerId.of(UUID.randomUUID())
     }
     
     private static MatchId randomMatchId() {
-        return new MatchId(UUID.randomUUID())
+        return MatchId.of(UUID.randomUUID())
     }
     
     private static MatchScore randomScore() {
-        return new MatchScore(RandomUtils.nextInt(0, 3), RandomUtils.nextInt(0, 3))
+        return MatchScore.of(RandomUtils.nextInt(0, 3), RandomUtils.nextInt(0, 3))
+    }
+
+    private static Team randomTeam() {
+        return Team.of(RandomStringUtils.randomAlphabetic(10))
     }
 }

@@ -3,6 +3,7 @@ package com.github.matek2305.betting.core.match.domain
 import com.github.matek2305.betting.commons.DomainSpecification
 import com.github.matek2305.betting.date.DateProvider
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
+import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.lang3.RandomUtils
 import spock.lang.Subject
 
@@ -15,7 +16,7 @@ class FinishMatchTest extends DomainSpecification {
     def dateProviderMock = Mock(DateProvider)
     
     def matches = withEventsPublisher({
-        new InMemoryMatchRepository(new MatchBettingPolicies(dateProviderMock), it)
+        new InMemoryMatchRepository(new MatchBettingPolicy.Default(dateProviderMock), it, dateProviderMock)
     })
     
     @Subject
@@ -49,15 +50,21 @@ class FinishMatchTest extends DomainSpecification {
     
     private MatchId randomIncomingMatch(ZonedDateTime startDateTime) {
         var matchId = randomMatchId()
-        matches.publish(new MatchEvent.NewMatchAdded(matchId, startDateTime))
+        matches.publish(new MatchEvent.IncomingMatchCreated(matchId, startDateTime, randomTeam(), randomTeam()))
         return matchId
     }
     
     private static MatchId randomMatchId() {
-        return new MatchId(UUID.randomUUID())
+        return MatchId.of(UUID.randomUUID())
     }
     
     private static MatchScore randomScore() {
-        return new MatchScore(RandomUtils.nextInt(0, 3), RandomUtils.nextInt(0, 3))
+        return MatchScore.of(RandomUtils.nextInt(0, 3), RandomUtils.nextInt(0, 3))
     }
+
+    private static Team randomTeam() {
+        return Team.of(RandomStringUtils.randomAlphabetic(10))
+    }
+
+
 }

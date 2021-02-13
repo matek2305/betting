@@ -2,7 +2,7 @@ package com.github.matek2305.betting.core.match.domain;
 
 import lombok.Value;
 
-@Value
+@Value(staticConstructor = "of")
 public class MatchScore {
     int homeTeamScore;
     int awayTeamScore;
