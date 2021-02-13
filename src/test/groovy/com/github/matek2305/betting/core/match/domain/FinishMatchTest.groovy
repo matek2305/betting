@@ -1,17 +1,15 @@
 package com.github.matek2305.betting.core.match.domain
 
 import com.github.matek2305.betting.commons.DomainSpecification
-import com.github.matek2305.betting.date.DateProvider
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
-import org.apache.commons.lang3.RandomStringUtils
-import org.apache.commons.lang3.RandomUtils
+import com.github.matek2305.betting.date.DateProvider
 import spock.lang.Subject
 
 import java.time.ZonedDateTime
 
 import static java.time.ZonedDateTime.parse
 
-class FinishMatchTest extends DomainSpecification {
+class FinishMatchTest extends DomainSpecification implements MatchFixtures {
     
     def dateProviderMock = Mock(DateProvider)
     
@@ -53,18 +51,4 @@ class FinishMatchTest extends DomainSpecification {
         matches.publish(new MatchEvent.IncomingMatchCreated(matchId, startDateTime, randomTeam(), randomTeam()))
         return matchId
     }
-    
-    private static MatchId randomMatchId() {
-        return MatchId.of(UUID.randomUUID())
-    }
-    
-    private static MatchScore randomScore() {
-        return MatchScore.of(RandomUtils.nextInt(0, 3), RandomUtils.nextInt(0, 3))
-    }
-
-    private static Team randomTeam() {
-        return Team.of(RandomStringUtils.randomAlphabetic(10))
-    }
-
-
 }

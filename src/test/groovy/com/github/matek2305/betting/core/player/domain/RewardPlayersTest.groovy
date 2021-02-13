@@ -7,7 +7,7 @@ import com.github.matek2305.betting.core.match.domain.MatchScore
 import com.github.matek2305.betting.core.player.infrastructure.InMemoryPlayers
 import spock.lang.Subject
 
-class RewardPlayersTest extends DomainSpecification {
+class RewardPlayersTest extends DomainSpecification implements PlayerFixtures {
     
     private static final Points POINTS_FOR_EXACT_RESULT_HIT = Points.of(5)
     private static final Points POINTS_FOR_WINNING_TEAM_HIT = Points.of(2)
@@ -23,13 +23,13 @@ class RewardPlayersTest extends DomainSpecification {
     
     def "should reward players with points according to their bets"() {
         given:
-            def matchId = new MatchId(UUID.randomUUID())
+            def matchId = MatchId.of(UUID.randomUUID())
         
         and:
-            def playerWithExactResultHit = randomPlayerWithBet(matchId, new MatchScore(1, 2))
-            def playerWithPickedTeamHit = randomPlayerWithBet(matchId, new MatchScore(0, 2))
-            def playerWithDrawBet = randomPlayerWithBet(matchId, new MatchScore(1, 1))
-            def playerWithMissingBet = randomPlayerWithBet(matchId, new MatchScore(1, 0))
+            def playerWithExactResultHit = randomPlayerWithBet(matchId, MatchScore.of(1, 2))
+            def playerWithPickedTeamHit = randomPlayerWithBet(matchId, MatchScore.of(0, 2))
+            def playerWithDrawBet = randomPlayerWithBet(matchId, MatchScore.of(1, 1))
+            def playerWithMissingBet = randomPlayerWithBet(matchId, MatchScore.of(1, 0))
         
         when:
             giveRewards(matchId, matchResult)
@@ -46,20 +46,20 @@ class RewardPlayersTest extends DomainSpecification {
         
         where:
             matchResult          || exactResultHitPoints        || teamPickedBetPoints         || drawBetPoints         || missingBetPoints
-            new MatchScore(1, 2) || POINTS_FOR_EXACT_RESULT_HIT || POINTS_FOR_WINNING_TEAM_HIT || POINTS_FOR_MISSED_BET || POINTS_FOR_MISSED_BET
-            new MatchScore(3, 3) || POINTS_FOR_MISSED_BET       || POINTS_FOR_MISSED_BET       || POINTS_FOR_DRAW       || POINTS_FOR_MISSED_BET
+            MatchScore.of(1, 2) || POINTS_FOR_EXACT_RESULT_HIT || POINTS_FOR_WINNING_TEAM_HIT || POINTS_FOR_MISSED_BET || POINTS_FOR_MISSED_BET
+            MatchScore.of(3, 3) || POINTS_FOR_MISSED_BET       || POINTS_FOR_MISSED_BET       || POINTS_FOR_DRAW       || POINTS_FOR_MISSED_BET
     }
     
     def "should reward player only once"() {
         given:
-            def matchId = new MatchId(UUID.randomUUID())
-            def playerId = randomPlayerWithBet(matchId, new MatchScore(1, 2))
+            def matchId = MatchId.of(UUID.randomUUID())
+            def playerId = randomPlayerWithBet(matchId, MatchScore.of(1, 2))
         
         when:
-            giveRewards(matchId, new MatchScore(1, 2))
+            giveRewards(matchId, MatchScore.of(1, 2))
         
         and:
-            giveRewards(matchId, new MatchScore(1, 2))
+            giveRewards(matchId, MatchScore.of(1, 2))
     
         then:
             def events = findAllPublishedEvents(PlayerEvent.PointsRewarded)
@@ -76,7 +76,7 @@ class RewardPlayersTest extends DomainSpecification {
     }
     
     private PlayerId randomPlayerWithBet(MatchId matchId, MatchScore bet) {
-        def playerId = new PlayerId(UUID.randomUUID())
+        def playerId = randomPlayerId()
         players.publish(new PlayerEvent.NewPlayerCreated(playerId))
         players.publish(new PlayerEvent.PlayerBetMade(playerId, matchId, bet))
         return playerId

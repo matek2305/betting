@@ -1,8 +1,11 @@
 package com.github.matek2305.betting.core.match.domain;
 
+import com.github.matek2305.betting.core.match.domain.MatchEvent.IncomingMatchCreated;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinished;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public final class IncomingMatch implements Match {
@@ -29,5 +32,13 @@ public final class IncomingMatch implements Match {
 
     public FinishedMatch handle(MatchFinished matchFinished) {
         return new FinishedMatch(matchInformation, matchFinished.result());
+    }
+
+    static IncomingMatchCreated create(CreateIncomingMatchCommand command) {
+        return new IncomingMatchCreated(
+                MatchId.of(UUID.randomUUID()),
+                command.startDateTime(),
+                command.homeTeam(),
+                command.awayTeam());
     }
 }

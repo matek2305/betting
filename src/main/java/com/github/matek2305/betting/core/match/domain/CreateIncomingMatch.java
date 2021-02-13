@@ -9,10 +9,10 @@ public class CreateIncomingMatch {
     private final MatchRepository repository;
 
     public void create(CreateIncomingMatchCommand command) {
-        if (createIncomingMatchPolicy.canBeCreated(command)) {
-            repository.publish(command.accept());
-        } else {
-            repository.publish(command.reject());
+        if (!createIncomingMatchPolicy.canBeCreated(command)) {
+            throw new IllegalArgumentException("Create incoming match rejected");
         }
+
+        repository.publish(IncomingMatch.create(command));
     }
 }

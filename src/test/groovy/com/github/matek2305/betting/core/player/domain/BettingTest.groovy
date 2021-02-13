@@ -2,7 +2,7 @@ package com.github.matek2305.betting.core.player.domain
 
 import com.github.matek2305.betting.commons.DomainSpecification
 import com.github.matek2305.betting.core.match.domain.MatchBettingPolicy
-import com.github.matek2305.betting.core.match.domain.Team
+import com.github.matek2305.betting.core.match.domain.MatchFixtures
 import com.github.matek2305.betting.date.DateProvider
 
 import com.github.matek2305.betting.core.match.domain.MatchEvent
@@ -18,7 +18,7 @@ import java.time.ZonedDateTime
 
 import static java.time.ZonedDateTime.parse
 
-class BettingTest extends DomainSpecification {
+class BettingTest extends DomainSpecification implements MatchFixtures, PlayerFixtures {
     
     def dateProviderMock = Mock(DateProvider)
     
@@ -88,21 +88,5 @@ class BettingTest extends DomainSpecification {
         def matchId = randomMatchId()
         matches.publish(new MatchEvent.IncomingMatchCreated(matchId, startDateTime, randomTeam(), randomTeam()))
         return matchId
-    }
-    
-    private static PlayerId randomPlayerId() {
-        return PlayerId.of(UUID.randomUUID())
-    }
-    
-    private static MatchId randomMatchId() {
-        return MatchId.of(UUID.randomUUID())
-    }
-    
-    private static MatchScore randomScore() {
-        return MatchScore.of(RandomUtils.nextInt(0, 3), RandomUtils.nextInt(0, 3))
-    }
-
-    private static Team randomTeam() {
-        return Team.of(RandomStringUtils.randomAlphabetic(10))
     }
 }

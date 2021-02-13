@@ -20,15 +20,6 @@ public interface MatchEvent extends PublishableEvent {
     }
 
     @Value
-    class IncomingMatchCreationRejected implements MatchEvent {
-        UUID eventId = UUID.randomUUID();
-        MatchId matchId;
-        ZonedDateTime startDateTime;
-        Team homeTeam;
-        Team awayTeam;
-    }
-
-    @Value
     class MatchFinished implements MatchEvent {
         UUID eventId = UUID.randomUUID();
         MatchId matchId;
