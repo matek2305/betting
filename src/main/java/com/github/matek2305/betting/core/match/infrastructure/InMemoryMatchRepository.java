@@ -1,13 +1,13 @@
 package com.github.matek2305.betting.core.match.infrastructure;
 
 import com.github.matek2305.betting.commons.EventsPublisher;
-import com.github.matek2305.betting.core.match.domain.IncomingMatches;
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
+import com.github.matek2305.betting.core.match.domain.IncomingMatches;
 import com.github.matek2305.betting.core.match.domain.Match;
 import com.github.matek2305.betting.core.match.domain.MatchBettingPolicy;
 import com.github.matek2305.betting.core.match.domain.MatchEvent;
-import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinished;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.IncomingMatchCreated;
+import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinished;
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchInformation;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.github.matek2305.betting.core.match.domain.MatchBettingPolicy.bettingAllowedBeforeMatchStartOnly;
+import static com.github.matek2305.betting.core.match.domain.MatchRewardingPolicy.defaultRewards;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.Patterns.$Some;
@@ -37,7 +39,6 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
 
     private final Map<MatchId, Match> matches = new ConcurrentHashMap<>();
 
-    private final MatchBettingPolicy bettingPolicy;
     private final EventsPublisher publisher;
     private final DateProvider dateProvider;
 
@@ -88,8 +89,8 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
                         incomingMatchCreated.startDateTime(),
                         incomingMatchCreated.homeTeam(),
                         incomingMatchCreated.awayTeam()),
-                bettingPolicy,
-                MatchRewardingPolicy.defaultRewards());
+                bettingAllowedBeforeMatchStartOnly(dateProvider),
+                defaultRewards());
     }
 
     private Match finishMatch(MatchFinished matchFinished) {

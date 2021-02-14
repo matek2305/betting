@@ -1,7 +1,7 @@
 package com.github.matek2305.betting.core.match.web;
 
-import com.github.matek2305.betting.core.match.domain.CreateIncomingMatch;
-import com.github.matek2305.betting.core.match.domain.CreateIncomingMatchCommand;
+import com.github.matek2305.betting.core.match.domain.AddIncomingMatch;
+import com.github.matek2305.betting.core.match.domain.AddIncomingMatchCommand;
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
 import com.github.matek2305.betting.core.match.domain.IncomingMatches;
 import com.github.matek2305.betting.core.match.domain.Team;
@@ -25,14 +25,16 @@ public class NextMatchesResource {
 
     private static final String DEFAULT_NEXT_MATCHES_LIMIT = "10";
 
-    private final CreateIncomingMatch createIncomingMatch;
+    private final AddIncomingMatch addIncomingMatch;
     private final IncomingMatches incomingMatches;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response add(AddNewMatchRequest request) {
-        createIncomingMatch.create(toCreateCommand(request));
-        return Response.status(Response.Status.CREATED).build();
+        return addIncomingMatch.add(toCreateCommand(request))
+                .map(nothing -> Response.status(Response.Status.CREATED))
+                .getOrElseGet(cause -> Response.status(Response.Status.BAD_REQUEST.getStatusCode(), cause.getLocalizedMessage()))
+                .build();
     }
 
     @GET
@@ -44,8 +46,8 @@ public class NextMatchesResource {
                 .collect(Collectors.toList());
     }
 
-    private CreateIncomingMatchCommand toCreateCommand(AddNewMatchRequest request) {
-        return new CreateIncomingMatchCommand(
+    private AddIncomingMatchCommand toCreateCommand(AddNewMatchRequest request) {
+        return new AddIncomingMatchCommand(
                 request.startDateTime(),
                 Team.of(request.homeTeamName()),
                 Team.of(request.awayTeamName()));

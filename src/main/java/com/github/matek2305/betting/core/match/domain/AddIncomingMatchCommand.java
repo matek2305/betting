@@ -5,7 +5,7 @@ import lombok.Value;
 import java.time.ZonedDateTime;
 
 @Value
-public class CreateIncomingMatchCommand {
+public class AddIncomingMatchCommand {
     ZonedDateTime startDateTime;
     Team homeTeam;
     Team awayTeam;

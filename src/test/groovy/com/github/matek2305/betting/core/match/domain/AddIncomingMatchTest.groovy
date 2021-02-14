@@ -1,41 +1,41 @@
 package com.github.matek2305.betting.core.match.domain
 
 import com.github.matek2305.betting.commons.DomainSpecification
+import com.github.matek2305.betting.core.match.infrastructure.InMemoryBettingRooms
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
 import com.github.matek2305.betting.date.DateProvider
 import spock.lang.Subject
 
 import java.time.ZonedDateTime
 
-import static com.github.matek2305.betting.core.match.domain.CreateIncomingMatchPolicy.atLeastOneHourBeforeMatchStart
 import static java.time.ZonedDateTime.parse
 
-class CreateIncomingMatchTest extends DomainSpecification implements MatchFixtures {
+class AddIncomingMatchTest extends DomainSpecification implements MatchFixtures {
 
     def dateProviderMock = Mock(DateProvider)
 
-    def matches = withEventsPublisher({
-        new InMemoryMatchRepository(new MatchBettingPolicy.Default(dateProviderMock), it, dateProviderMock)
-    })
+    def matches = withEventsPublisher({new InMemoryMatchRepository(it, dateProviderMock) })
 
     @Subject
-    def createIncomingMatch = new CreateIncomingMatch(
-            atLeastOneHourBeforeMatchStart(dateProviderMock), matches)
+    def createIncomingMatch = new AddIncomingMatch(new InMemoryBettingRooms(dateProviderMock), matches)
 
     def "should create incoming match"() {
         given:
             setCurrentDateTime(parse('2021-02-13T15:14Z'))
         
         and:
-            def command = new CreateIncomingMatchCommand(
+            def command = new AddIncomingMatchCommand(
                     parse('2021-02-13T17:30Z'),
                     randomTeam(),
                     randomTeam())
-        
+    
         when:
-            createIncomingMatch.create(command)
-        
+            def result = createIncomingMatch.add(command)
+    
         then:
+            result.isSuccess()
+        
+        and:
             def event = findPublishedEvent(MatchEvent.IncomingMatchCreated)
             event.matchId() != null
             event.startDateTime() == command.startDateTime()
@@ -48,17 +48,19 @@ class CreateIncomingMatchTest extends DomainSpecification implements MatchFixtur
             setCurrentDateTime(parse('2021-02-13T15:14Z'))
     
         and:
-            def command = new CreateIncomingMatchCommand(
+            def command = new AddIncomingMatchCommand(
                     parse('2021-02-13T16:00Z'),
                     randomTeam(),
                     randomTeam())
     
         when:
-            createIncomingMatch.create(command)
+            def result = createIncomingMatch.add(command)
     
         then:
-            def ex = thrown(IllegalArgumentException)
-            ex.message.contains('Create incoming match rejected')
+            result.isFailure()
+        
+        and:
+            result.cause.message.contains('one hour')
     }
     
     private void setCurrentDateTime(ZonedDateTime dateTime) {

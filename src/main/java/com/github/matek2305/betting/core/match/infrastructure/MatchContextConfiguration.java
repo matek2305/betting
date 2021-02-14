@@ -1,11 +1,9 @@
 package com.github.matek2305.betting.core.match.infrastructure;
 
 import com.github.matek2305.betting.commons.EventsPublisher;
-import com.github.matek2305.betting.core.match.domain.CreateIncomingMatch;
-import com.github.matek2305.betting.core.match.domain.CreateIncomingMatchPolicy;
-import com.github.matek2305.betting.core.match.domain.MatchBettingPolicy;
+import com.github.matek2305.betting.core.match.domain.AddIncomingMatch;
+import com.github.matek2305.betting.core.match.domain.BettingRooms;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
-import com.github.matek2305.betting.date.DateProvider;
 import io.vertx.core.eventbus.EventBus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,18 +27,8 @@ class MatchContextConfiguration {
     }
 
     @Produces
-    public CreateIncomingMatch createIncomingMatch(
-            CreateIncomingMatchPolicy createIncomingMatchPolicy, MatchRepository repository) {
-        return new CreateIncomingMatch(createIncomingMatchPolicy, repository);
-    }
-
-    @Produces
-    public MatchBettingPolicy matchBettingPolicies(DateProvider dateProvider) {
-        return MatchBettingPolicy.bettingAllowedBeforeMatchStartOnly(dateProvider);
-    }
-
-    @Produces
-    public CreateIncomingMatchPolicy createIncomingMatchPolicy(DateProvider dateProvider) {
-        return CreateIncomingMatchPolicy.atLeastOneHourBeforeMatchStart(dateProvider);
+    public AddIncomingMatch createIncomingMatch(
+            BettingRooms bettingRooms, MatchRepository repository) {
+        return new AddIncomingMatch(bettingRooms, repository);
     }
 }

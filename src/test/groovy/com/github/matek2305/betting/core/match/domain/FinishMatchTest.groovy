@@ -13,9 +13,7 @@ class FinishMatchTest extends DomainSpecification implements MatchFixtures {
     
     def dateProviderMock = Mock(DateProvider)
     
-    def matches = withEventsPublisher({
-        new InMemoryMatchRepository(new MatchBettingPolicy.Default(dateProviderMock), it, dateProviderMock)
-    })
+    def matches = withEventsPublisher({new InMemoryMatchRepository(it, dateProviderMock) })
     
     @Subject
     def finishMatch = new FinishMatch(matches, matches)

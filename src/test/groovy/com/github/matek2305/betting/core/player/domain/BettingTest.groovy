@@ -1,17 +1,13 @@
 package com.github.matek2305.betting.core.player.domain
 
 import com.github.matek2305.betting.commons.DomainSpecification
-import com.github.matek2305.betting.core.match.domain.MatchBettingPolicy
-import com.github.matek2305.betting.core.match.domain.MatchFixtures
-import com.github.matek2305.betting.date.DateProvider
-
 import com.github.matek2305.betting.core.match.domain.MatchEvent
+import com.github.matek2305.betting.core.match.domain.MatchFixtures
 import com.github.matek2305.betting.core.match.domain.MatchId
 import com.github.matek2305.betting.core.match.domain.MatchScore
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
 import com.github.matek2305.betting.core.player.infrastructure.InMemoryPlayers
-import org.apache.commons.lang3.RandomStringUtils
-import org.apache.commons.lang3.RandomUtils
+import com.github.matek2305.betting.date.DateProvider
 import spock.lang.Subject
 
 import java.time.ZonedDateTime
@@ -22,9 +18,7 @@ class BettingTest extends DomainSpecification implements MatchFixtures, PlayerFi
     
     def dateProviderMock = Mock(DateProvider)
     
-    def matches = withEventsPublisher({
-        new InMemoryMatchRepository(new MatchBettingPolicy.Default(dateProviderMock), it, dateProviderMock)
-    })
+    def matches = withEventsPublisher({new InMemoryMatchRepository(it, dateProviderMock) })
     
     def players = withEventsPublisher({ new InMemoryPlayers(it) })
     
