@@ -1,7 +1,7 @@
-package com.github.matek2305.betting.core.match.web;
+package com.github.matek2305.betting.core.room.web;
 
-import com.github.matek2305.betting.core.match.domain.AddIncomingMatch;
-import com.github.matek2305.betting.core.match.domain.AddIncomingMatchCommand;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand;
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
 import com.github.matek2305.betting.core.match.domain.IncomingMatches;
 import com.github.matek2305.betting.core.match.domain.Team;
@@ -19,9 +19,9 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("next_matches")
+@Path("betting_rooms")
 @RequiredArgsConstructor
-public class NextMatchesResource {
+public class BettingRoomsResource {
 
     private static final String DEFAULT_NEXT_MATCHES_LIMIT = "10";
 
@@ -29,6 +29,7 @@ public class NextMatchesResource {
     private final IncomingMatches incomingMatches;
 
     @POST
+    @Path("/global/matches")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response add(AddNewMatchRequest request) {
         return addIncomingMatch.add(toCreateCommand(request))
@@ -38,6 +39,7 @@ public class NextMatchesResource {
     }
 
     @GET
+    @Path("/global/next_matches")
     @Produces(MediaType.APPLICATION_JSON)
     public List<MatchResponse> get(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
         return incomingMatches.findNext(howMany)

@@ -1,8 +1,8 @@
 package com.github.matek2305.betting.core.match.infrastructure;
 
 import com.github.matek2305.betting.commons.EventsPublisher;
-import com.github.matek2305.betting.core.match.domain.AddIncomingMatch;
-import com.github.matek2305.betting.core.match.domain.BettingRooms;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
+import com.github.matek2305.betting.core.room.domain.BettingRoomRepository;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
 import io.vertx.core.eventbus.EventBus;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ class MatchContextConfiguration {
 
     @Produces
     public AddIncomingMatch createIncomingMatch(
-            BettingRooms bettingRooms, MatchRepository repository) {
-        return new AddIncomingMatch(bettingRooms, repository);
+            BettingRoomRepository bettingRoomRepository, MatchRepository repository) {
+        return new AddIncomingMatch(bettingRoomRepository, repository);
     }
 }

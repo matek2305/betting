@@ -1,6 +1,7 @@
-package com.github.matek2305.betting.core.match.domain;
+package com.github.matek2305.betting.core.room.domain;
 
 import com.github.matek2305.betting.core.match.domain.MatchEvent.IncomingMatchCreated;
+import com.github.matek2305.betting.core.match.domain.MatchId;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;

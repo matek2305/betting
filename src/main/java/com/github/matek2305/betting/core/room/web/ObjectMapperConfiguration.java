@@ -1,4 +1,4 @@
-package com.github.matek2305.betting.core.match.web;
+package com.github.matek2305.betting.core.room.web;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

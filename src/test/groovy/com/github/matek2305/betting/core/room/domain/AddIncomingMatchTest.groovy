@@ -1,8 +1,12 @@
-package com.github.matek2305.betting.core.match.domain
+package com.github.matek2305.betting.core.room.domain
 
 import com.github.matek2305.betting.commons.DomainSpecification
-import com.github.matek2305.betting.core.match.infrastructure.InMemoryBettingRooms
+import com.github.matek2305.betting.core.match.domain.MatchEvent
+import com.github.matek2305.betting.core.match.domain.MatchFixtures
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatch
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand
+import com.github.matek2305.betting.core.room.infrastructure.InMemoryBettingRoomRepository
 import com.github.matek2305.betting.date.DateProvider
 import spock.lang.Subject
 
@@ -17,7 +21,7 @@ class AddIncomingMatchTest extends DomainSpecification implements MatchFixtures 
     def matches = withEventsPublisher({new InMemoryMatchRepository(it, dateProviderMock) })
 
     @Subject
-    def createIncomingMatch = new AddIncomingMatch(new InMemoryBettingRooms(dateProviderMock), matches)
+    def createIncomingMatch = new AddIncomingMatch(new InMemoryBettingRoomRepository(dateProviderMock), matches)
 
     def "should create incoming match"() {
         given:
