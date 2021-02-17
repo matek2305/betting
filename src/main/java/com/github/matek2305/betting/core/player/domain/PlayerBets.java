@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.google.common.collect.Maps.filterKeys;
+
 @Value
 @Getter(AccessLevel.NONE)
 @RequiredArgsConstructor
@@ -35,7 +37,7 @@ public class PlayerBets {
     PlayerBets with(MatchId matchId, MatchScore bet) {
         return new PlayerBets(
                 new ImmutableMap.Builder<MatchId, MatchScore>()
-                        .putAll(bets)
+                        .putAll(filterKeys(bets, id -> !id.equals(matchId)))
                         .put(matchId, bet)
                         .build());
     }
