@@ -7,6 +7,8 @@ import java.util.Set;
 
 public interface Players {
 
+    Player createWithId(PlayerId playerId);
+
     Option<Player> findBy(PlayerId playerId);
 
     Set<Player> findByBetMatchId(MatchId matchId);

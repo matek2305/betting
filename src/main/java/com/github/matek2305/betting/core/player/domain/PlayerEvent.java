@@ -12,12 +12,6 @@ public interface PlayerEvent extends PublishableEvent {
     PlayerId playerId();
 
     @Value
-    class NewPlayerCreated implements PlayerEvent {
-        UUID eventId = UUID.randomUUID();
-        PlayerId playerId;
-    }
-
-    @Value
     class PlayerBetMade implements PlayerEvent {
         UUID eventId = UUID.randomUUID();
         PlayerId playerId;

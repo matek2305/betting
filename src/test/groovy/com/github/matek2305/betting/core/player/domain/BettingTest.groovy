@@ -94,7 +94,7 @@ class BettingTest extends DomainSpecification implements MatchFixtures, PlayerFi
 
     private PlayerId randomPlayer() {
         var playerId = randomPlayerId()
-        players.publish(new PlayerEvent.NewPlayerCreated(playerId))
+        players.createWithId(playerId)
         return playerId
     }
 
