@@ -12,6 +12,8 @@ import com.github.matek2305.betting.core.match.domain.MatchInformation;
 import com.github.matek2305.betting.core.match.domain.MatchNotFoundException;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
 import com.github.matek2305.betting.date.DateProvider;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import io.vavr.API;
 import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +23,14 @@ import javax.enterprise.context.ApplicationScoped;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.github.matek2305.betting.core.match.domain.MatchBettingPolicy.bettingAllowedBeforeMatchStartOnly;
 import static com.github.matek2305.betting.core.match.domain.MatchRewardingPolicy.defaultRewards;
+import static com.google.common.collect.ImmutableSet.copyOf;
+import static com.google.common.collect.Maps.filterKeys;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.Patterns.$Some;
@@ -50,6 +55,11 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
     @Override
     public List<Match> findAll() {
         return List.copyOf(matches.values());
+    }
+
+    @Override
+    public Set<Match> findBy(Set<MatchId> matchIds) {
+        return copyOf(filterKeys(matches, matchIds::contains).values());
     }
 
     @Override

@@ -16,13 +16,16 @@ import java.util.stream.Collectors;
 import static com.google.common.collect.Maps.filterKeys;
 
 @Value
-@Getter(AccessLevel.NONE)
 @RequiredArgsConstructor
 public class PlayerBets {
     Map<MatchId, MatchScore> bets;
 
     public PlayerBets() {
         this(Collections.emptyMap());
+    }
+
+    public Map<MatchId, MatchScore> getAll() {
+        return ImmutableMap.copyOf(bets);
     }
 
     boolean exist(MatchId matchId) {

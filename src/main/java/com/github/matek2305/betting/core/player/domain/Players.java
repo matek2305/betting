@@ -9,6 +9,11 @@ public interface Players {
 
     Player createWithId(PlayerId playerId);
 
+    default Player getBy(PlayerId playerId) {
+        return findBy(playerId)
+                .getOrElseThrow(() -> new PlayerNotFoundException(playerId));
+    }
+
     Option<Player> findBy(PlayerId playerId);
 
     Set<Player> findByBetMatchId(MatchId matchId);
