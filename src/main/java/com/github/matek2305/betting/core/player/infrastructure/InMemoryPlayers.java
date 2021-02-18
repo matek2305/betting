@@ -11,6 +11,7 @@ import com.github.matek2305.betting.core.player.domain.Players;
 import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 
+import javax.enterprise.context.ApplicationScoped;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,6 +22,7 @@ import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static io.vavr.Predicates.instanceOf;
 
+@ApplicationScoped
 @RequiredArgsConstructor
 public class InMemoryPlayers implements Players {
 
@@ -54,7 +56,7 @@ public class InMemoryPlayers implements Players {
                 Case($(), () -> players.get(event.playerId())));
 
         players.put(player.playerId(), player);
-        publisher.publish(event);
+        publisher.publish("players", event);
     }
 
     private Player savePlayerBet(PlayerBetMade playerBetMade) {

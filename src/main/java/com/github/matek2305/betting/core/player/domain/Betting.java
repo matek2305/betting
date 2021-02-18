@@ -6,7 +6,7 @@ import com.github.matek2305.betting.core.match.domain.MatchId;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-class Betting {
+public class Betting {
 
     private final IncomingMatches incomingMatches;
     private final Players players;
@@ -18,12 +18,11 @@ class Betting {
     }
 
     private IncomingMatch get(MatchId matchId) {
-        return incomingMatches.findIncomingMatchBy(matchId)
-                .getOrElseThrow(() -> new IllegalArgumentException("Cannot find incoming match with id=" + matchId));
+        return incomingMatches.getIncomingMatchBy(matchId);
     }
 
     private Player get(PlayerId playerId) {
         return players.findBy(playerId)
-                .getOrElseThrow(() -> new IllegalArgumentException("Cannot find player with id=" + playerId));
+                .getOrElse(() -> players.createWithId(playerId));
     }
 }

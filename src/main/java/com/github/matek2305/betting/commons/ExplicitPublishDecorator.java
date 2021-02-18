@@ -8,9 +8,9 @@ class ExplicitPublishDecorator implements EventsPublisher {
     private final EventsPublisher eventsPublisher;
 
     @Override
-    public void publish(PublishableEvent event) {
+    public void publish(String address, PublishableEvent event) {
         if (event.shouldPublish()) {
-            eventsPublisher.publish(event);
+            eventsPublisher.publish(address, event);
         }
     }
 }

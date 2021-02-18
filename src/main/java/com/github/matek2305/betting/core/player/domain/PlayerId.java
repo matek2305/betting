@@ -1,10 +1,9 @@
 package com.github.matek2305.betting.core.player.domain;
 
+import lombok.NonNull;
 import lombok.Value;
-
-import java.util.UUID;
 
 @Value(staticConstructor = "of")
 public class PlayerId {
-    UUID id;
+    @NonNull String id;
 }

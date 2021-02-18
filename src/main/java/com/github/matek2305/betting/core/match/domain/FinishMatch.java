@@ -14,7 +14,6 @@ class FinishMatch {
     }
 
     private IncomingMatch get(MatchId matchId) {
-        return incomingMatches.findIncomingMatchBy(matchId)
-                .getOrElseThrow(() -> new IllegalArgumentException("Incoming match with id=" + matchId + " not found."));
+        return incomingMatches.getIncomingMatchBy(matchId);
     }
 }

@@ -15,7 +15,7 @@ class DomainSpecification extends Specification {
     def <T> T withEventsPublisher(Function<EventsPublisher, T> createFunction) {
         return createFunction.apply(new EventsPublisher() {
             @Override
-            void publish(PublishableEvent event) {
+            void publish(String address, PublishableEvent event) {
                 publishedEvents.add(event)
             }
         })
