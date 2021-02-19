@@ -31,4 +31,17 @@ public interface MatchEvent extends PublishableEvent {
             return true;
         }
     }
+
+    @Value
+    class MatchResultCorrected implements MatchEvent {
+        UUID eventId = UUID.randomUUID();
+        MatchId matchId;
+        MatchScore result;
+        MatchRewards rewards;
+
+        @Override
+        public boolean shouldPublish() {
+            return true;
+        }
+    }
 }

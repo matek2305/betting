@@ -37,7 +37,22 @@ class FinishMatchTest extends DomainSpecification implements MatchFixtures {
             event.rewards().pointsForDrawHit() == defaultRewards.pointsForDraw
             event.rewards().pointsForMissingBet() == defaultRewards.pointsForMissingBet
     }
-    
+
+    def "should throw match not found when trying to finish already finished match"() {
+        given:
+            def matchId = randomIncomingMatch(parse('2021-02-06T13:30Z'))
+
+        when:
+            finishMatch(matchId)
+
+        and:
+            finishMatch(matchId)
+
+        then:
+            def matchNotFound = thrown(MatchNotFoundException)
+            matchNotFound.message.contains(matchId.toString())
+    }
+
     private MatchScore finishMatch(MatchId matchId) {
         def command = new FinishMatchCommand(matchId, randomScore())
         finishMatch.finishMatch(command)

@@ -1,12 +1,15 @@
 package com.github.matek2305.betting.core.match.infrastructure;
 
 import com.github.matek2305.betting.commons.EventsPublisher;
+import com.github.matek2305.betting.core.match.domain.FinishedMatch;
+import com.github.matek2305.betting.core.match.domain.FinishedMatches;
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
 import com.github.matek2305.betting.core.match.domain.IncomingMatches;
 import com.github.matek2305.betting.core.match.domain.Match;
 import com.github.matek2305.betting.core.match.domain.MatchEvent;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.IncomingMatchCreated;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinished;
+import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchResultCorrected;
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchInformation;
 import com.github.matek2305.betting.core.match.domain.MatchNotFoundException;
@@ -40,7 +43,7 @@ import static java.util.function.Function.identity;
 @Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
-public class InMemoryMatchRepository implements MatchRepository, IncomingMatches {
+public class InMemoryMatchRepository implements MatchRepository, IncomingMatches, FinishedMatches {
 
     private final Map<MatchId, Match> matches = new ConcurrentHashMap<>();
 
@@ -66,7 +69,8 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
     public void publish(MatchEvent event) {
         var match = API.Match(event).of(
                 Case($(instanceOf(IncomingMatchCreated.class)), this::createNewIncomingMatch),
-                Case($(instanceOf(MatchFinished.class)), this::finishMatch));
+                Case($(instanceOf(MatchFinished.class)), this::finishMatch),
+                Case($(instanceOf(MatchResultCorrected.class)), this::correctMatchResult));
 
         matches.put(match.matchId(), match);
         publisher.publish("matches", event);
@@ -77,6 +81,14 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
         return API.Match(findBy(matchId)).of(
                 Case($Some($(instanceOf(IncomingMatch.class))), identity()),
                 Case($(), () -> { throw new MatchNotFoundException(matchId); }));
+    }
+
+    @Override
+    public FinishedMatch getFinishedMatchBy(MatchId matchId) {
+        return API.Match(findBy(matchId)).of(
+                Case($Some($(instanceOf(FinishedMatch.class))), identity()),
+                Case($(), () -> { throw new MatchNotFoundException(matchId); }));
+
     }
 
     @Override
@@ -103,7 +115,11 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
                 defaultRewards());
     }
 
-    private Match finishMatch(MatchFinished matchFinished) {
+    private FinishedMatch finishMatch(MatchFinished matchFinished) {
         return getIncomingMatchBy(matchFinished.matchId()).handle(matchFinished);
+    }
+
+    private FinishedMatch correctMatchResult(MatchResultCorrected resultCorrected) {
+        return getFinishedMatchBy(resultCorrected.matchId()).handle(resultCorrected);
     }
 }

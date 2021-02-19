@@ -28,6 +28,9 @@ public final class IncomingMatch implements Match {
     }
 
     public FinishedMatch handle(MatchFinished matchFinished) {
-        return new FinishedMatch(matchInformation, matchFinished.result());
+        return new FinishedMatch(
+                matchInformation,
+                matchFinished.result(),
+                rewardingPolicy);
     }
 }
