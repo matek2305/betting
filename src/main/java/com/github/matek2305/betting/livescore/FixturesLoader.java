@@ -1,5 +1,6 @@
 package com.github.matek2305.betting.livescore;
 
+import io.quarkus.arc.properties.IfBuildProperty;
 import io.quarkus.runtime.Startup;
 import io.vertx.core.eventbus.EventBus;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -9,6 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 
 @Startup
 @ApplicationScoped
+@IfBuildProperty(name = "api-football.enabled", stringValue = "true")
 class FixturesLoader {
 
     private final FootballApiClient client;
