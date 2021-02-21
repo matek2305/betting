@@ -18,7 +18,7 @@
             <dependency>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-bom</artifactId>
-                <version>1.11.1.Final</version>
+                <version>1.12.0.Final</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -90,6 +90,18 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -97,7 +109,7 @@
             <plugin>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
-                <version>1.11.1.Final</version>
+                <version>1.11.3.Final</version>
                 <executions>
                     <execution>
                         <goals>
@@ -151,6 +163,10 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
+                    <systemPropertyVariables>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                        <quarkus.log.level>WARN</quarkus.log.level>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>

@@ -2,8 +2,12 @@ package com.github.matek2305.betting.core.match.domain;
 
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinishRejected;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinished;
+import io.vavr.control.Either;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import static io.vavr.control.Either.left;
+import static io.vavr.control.Either.right;
 
 @RequiredArgsConstructor
 public final class IncomingMatch implements Match {
@@ -18,20 +22,23 @@ public final class IncomingMatch implements Match {
         return bettingPolicy.playerCanBet(this);
     }
 
-    public MatchEvent finish(FinishMatchCommand command) {
+    public Either<MatchFinishRejected, MatchFinished> finish(FinishMatchCommand command) {
         if (finishMatchPolicy.check(this)) {
-            return new MatchFinished(
+            return right(new MatchFinished(
                     matchId(),
                     command.result(),
                     new MatchRewards(
                             rewardingPolicy.getPointsForExactResultHit(),
                             rewardingPolicy.getPointsForWinningTeamHit(),
                             rewardingPolicy.getPointsForDraw(),
-                            rewardingPolicy.getPointsForMissingBet()));
+                            rewardingPolicy.getPointsForMissingBet()
+                    )
+            ));
         } else {
-            return new MatchFinishRejected(
+            return left(new MatchFinishRejected(
                     matchId(),
-                    finishMatchPolicy.getRuleDescription());
+                    finishMatchPolicy.getRuleDescription()
+            ));
         }
     }
 

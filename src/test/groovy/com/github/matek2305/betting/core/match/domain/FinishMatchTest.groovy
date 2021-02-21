@@ -1,5 +1,6 @@
 package com.github.matek2305.betting.core.match.domain
 
+import com.github.matek2305.betting.commons.CommandResult
 import com.github.matek2305.betting.commons.DomainSpecification
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
 import com.github.matek2305.betting.date.DateProvider
@@ -18,14 +19,18 @@ class FinishMatchTest extends DomainSpecification implements MatchFixtures {
         given:
             def matchId = randomIncomingMatch(
                     ZonedDateTime.now().minusMinutes(90))
+            def score = randomScore()
         
         when:
-            def result = finishMatch(matchId)
+            def result = finishMatch(matchId, score)
         
         then:
+            result.class == CommandResult.Allowed
+
+        and:
             def event = findPublishedEvent(MatchEvent.MatchFinished)
             event.matchId() == matchId
-            event.result() == result
+            event.result() == score
         
         and:
             def defaultRewards = MatchRewardingPolicy.defaultRewards()
@@ -41,10 +46,10 @@ class FinishMatchTest extends DomainSpecification implements MatchFixtures {
                     ZonedDateTime.now().minusMinutes(90))
 
         when:
-            finishMatch(matchId)
+            finishMatch(matchId, randomScore())
 
         and:
-            finishMatch(matchId)
+            finishMatch(matchId, randomScore())
 
         then:
             def matchNotFound = thrown(MatchNotFoundException)
@@ -57,18 +62,20 @@ class FinishMatchTest extends DomainSpecification implements MatchFixtures {
                     ZonedDateTime.now().plusMinutes(30))
 
         when:
-            finishMatch(matchId)
+            def result = finishMatch(matchId, randomScore())
 
         then:
+            result.class == CommandResult.Rejected
+
+        and:
             def event = findPublishedEvent(MatchEvent.MatchFinishRejected)
             event.matchId() == matchId
             event.rejectionReason()
     }
 
-    private MatchScore finishMatch(MatchId matchId) {
-        def command = new FinishMatchCommand(matchId, randomScore())
-        finishMatch.finishMatch(command)
-        return command.result()
+    private CommandResult finishMatch(MatchId matchId, MatchScore score) {
+        def command = new FinishMatchCommand(matchId, score)
+        return finishMatch.finishMatch(command)
     }
     
     private MatchId randomIncomingMatch(ZonedDateTime startDateTime) {
