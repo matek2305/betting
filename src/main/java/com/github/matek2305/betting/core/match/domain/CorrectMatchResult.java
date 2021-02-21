@@ -3,7 +3,7 @@ package com.github.matek2305.betting.core.match.domain;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-class CorrectMatchResult {
+public class CorrectMatchResult {
 
     private final FinishedMatches finishedMatches;
     private final MatchRepository matchRepository;

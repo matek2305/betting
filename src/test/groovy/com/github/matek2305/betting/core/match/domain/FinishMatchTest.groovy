@@ -7,20 +7,17 @@ import spock.lang.Subject
 
 import java.time.ZonedDateTime
 
-import static java.time.ZonedDateTime.parse
-
 class FinishMatchTest extends DomainSpecification implements MatchFixtures {
     
-    def dateProviderMock = Mock(DateProvider)
-    
-    def matches = withEventsPublisher({new InMemoryMatchRepository(it, dateProviderMock) })
+    def matches = withEventsPublisher({new InMemoryMatchRepository(it, new DateProvider()) })
     
     @Subject
     def finishMatch = new FinishMatch(matches, matches)
     
     def "should finish incoming match"() {
         given:
-            def matchId = randomIncomingMatch(parse('2021-02-06T13:30Z'))
+            def matchId = randomIncomingMatch(
+                    ZonedDateTime.now().minusMinutes(90))
         
         when:
             def result = finishMatch(matchId)
@@ -40,7 +37,8 @@ class FinishMatchTest extends DomainSpecification implements MatchFixtures {
 
     def "should throw match not found when trying to finish already finished match"() {
         given:
-            def matchId = randomIncomingMatch(parse('2021-02-06T13:30Z'))
+            def matchId = randomIncomingMatch(
+                    ZonedDateTime.now().minusMinutes(90))
 
         when:
             finishMatch(matchId)
@@ -51,6 +49,20 @@ class FinishMatchTest extends DomainSpecification implements MatchFixtures {
         then:
             def matchNotFound = thrown(MatchNotFoundException)
             matchNotFound.message.contains(matchId.toString())
+    }
+
+    def "should not allow to finish not started match"() {
+        given:
+            def matchId = randomIncomingMatch(
+                    ZonedDateTime.now().plusMinutes(30))
+
+        when:
+            finishMatch(matchId)
+
+        then:
+            def event = findPublishedEvent(MatchEvent.MatchFinishRejected)
+            event.matchId() == matchId
+            event.rejectionReason()
     }
 
     private MatchScore finishMatch(MatchId matchId) {

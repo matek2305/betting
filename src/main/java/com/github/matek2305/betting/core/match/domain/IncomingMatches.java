@@ -7,4 +7,6 @@ public interface IncomingMatches {
     IncomingMatch getIncomingMatchBy(MatchId matchId);
 
     List<IncomingMatch> findNext(int howMany);
+
+    List<IncomingMatch> findStarted(int howMany);
 }

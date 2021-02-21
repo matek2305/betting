@@ -25,11 +25,13 @@ public interface MatchEvent extends PublishableEvent {
         MatchId matchId;
         MatchScore result;
         MatchRewards rewards;
+    }
 
-        @Override
-        public boolean shouldPublish() {
-            return true;
-        }
+    @Value
+    class MatchFinishRejected implements MatchEvent {
+        UUID eventId = UUID.randomUUID();
+        MatchId matchId;
+        String rejectionReason;
     }
 
     @Value
@@ -38,10 +40,5 @@ public interface MatchEvent extends PublishableEvent {
         MatchId matchId;
         MatchScore result;
         MatchRewards rewards;
-
-        @Override
-        public boolean shouldPublish() {
-            return true;
-        }
     }
 }

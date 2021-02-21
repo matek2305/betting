@@ -1,10 +1,10 @@
 package com.github.matek2305.betting.core.room.web;
 
-import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
-import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand;
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
 import com.github.matek2305.betting.core.match.domain.IncomingMatches;
 import com.github.matek2305.betting.core.match.domain.Team;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand;
 import lombok.RequiredArgsConstructor;
 
 import javax.ws.rs.Consumes;
@@ -41,8 +41,18 @@ public class BettingRoomsResource {
     @GET
     @Path("/global/next_matches")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<MatchResponse> get(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
+    public List<MatchResponse> getNext(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
         return incomingMatches.findNext(howMany)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @GET
+    @Path("/global/started_matches")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<MatchResponse> getStarted(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
+        return incomingMatches.findStarted(howMany)
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());

@@ -4,8 +4,6 @@ import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchScore;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.control.Option;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 

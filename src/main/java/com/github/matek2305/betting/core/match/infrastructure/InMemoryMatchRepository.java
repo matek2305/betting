@@ -15,8 +15,6 @@ import com.github.matek2305.betting.core.match.domain.MatchInformation;
 import com.github.matek2305.betting.core.match.domain.MatchNotFoundException;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
 import com.github.matek2305.betting.date.DateProvider;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import io.vavr.API;
 import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.github.matek2305.betting.core.match.domain.FinishMatchPolicy.afterMatchStarted;
 import static com.github.matek2305.betting.core.match.domain.MatchBettingPolicy.bettingAllowedBeforeMatchStartOnly;
 import static com.github.matek2305.betting.core.match.domain.MatchRewardingPolicy.defaultRewards;
 import static com.google.common.collect.ImmutableSet.copyOf;
@@ -44,6 +44,12 @@ import static java.util.function.Function.identity;
 @ApplicationScoped
 @RequiredArgsConstructor
 public class InMemoryMatchRepository implements MatchRepository, IncomingMatches, FinishedMatches {
+
+    private static final Comparator<Match> BY_START_DATE_TIME_FROM_CLOSEST =
+            Comparator.comparing(Match::startDateTime)
+                    .thenComparing(match -> match.homeTeam().name())
+                    .thenComparing(match -> match.awayTeam().name());
+
 
     private final Map<MatchId, Match> matches = new ConcurrentHashMap<>();
 
@@ -67,12 +73,14 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
 
     @Override
     public void publish(MatchEvent event) {
-        var match = API.Match(event).of(
+        API.Match(event).option(
+
                 Case($(instanceOf(IncomingMatchCreated.class)), this::createNewIncomingMatch),
                 Case($(instanceOf(MatchFinished.class)), this::finishMatch),
-                Case($(instanceOf(MatchResultCorrected.class)), this::correctMatchResult));
+                Case($(instanceOf(MatchResultCorrected.class)), this::correctMatchResult)
 
-        matches.put(match.matchId(), match);
+        ).forEach(match -> matches.put(match.matchId(), match));
+
         publisher.publish("matches", event);
     }
 
@@ -80,28 +88,43 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
     public IncomingMatch getIncomingMatchBy(MatchId matchId) {
         return API.Match(findBy(matchId)).of(
                 Case($Some($(instanceOf(IncomingMatch.class))), identity()),
-                Case($(), () -> { throw new MatchNotFoundException(matchId); }));
+                Case($(), () -> {
+                    throw new MatchNotFoundException(matchId);
+                }));
     }
 
     @Override
     public FinishedMatch getFinishedMatchBy(MatchId matchId) {
         return API.Match(findBy(matchId)).of(
                 Case($Some($(instanceOf(FinishedMatch.class))), identity()),
-                Case($(), () -> { throw new MatchNotFoundException(matchId); }));
+                Case($(), () -> {
+                    throw new MatchNotFoundException(matchId);
+                }));
 
     }
 
     @Override
     public List<IncomingMatch> findNext(int howMany) {
+        return findBy(started().negate(), howMany);
+    }
+
+    @Override
+    public List<IncomingMatch> findStarted(int howMany) {
+        return findBy(started(), howMany);
+    }
+
+    private List<IncomingMatch> findBy(Predicate<Match> predicate, int howMany) {
         return matches.values()
                 .stream()
-                .filter(match -> match.startDateTime().isAfter(dateProvider.getCurrentDateTime()))
-                .sorted(Comparator.comparing(Match::startDateTime)
-                        .thenComparing(match -> match.homeTeam().name())
-                        .thenComparing(match -> match.awayTeam().name()))
+                .filter(predicate.and(match -> IncomingMatch.class.isAssignableFrom(match.getClass())))
+                .sorted(BY_START_DATE_TIME_FROM_CLOSEST)
                 .limit(howMany)
                 .map(match -> (IncomingMatch) match)
                 .collect(Collectors.toList());
+    }
+
+    private Predicate<Match> started() {
+        return match -> dateProvider.getCurrentDateTime().isAfter(match.startDateTime());
     }
 
     private Match createNewIncomingMatch(IncomingMatchCreated incomingMatchCreated) {
@@ -112,7 +135,8 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
                         incomingMatchCreated.homeTeam(),
                         incomingMatchCreated.awayTeam()),
                 bettingAllowedBeforeMatchStartOnly(dateProvider),
-                defaultRewards());
+                defaultRewards(),
+                afterMatchStarted(dateProvider));
     }
 
     private FinishedMatch finishMatch(MatchFinished matchFinished) {
