@@ -17,6 +17,6 @@ public class InMemoryBettingRoomRepository implements BettingRoomRepository {
 
     @Override
     public BettingRoom getGlobal() {
-        return new BettingRoom(atLeastOneHourBeforeMatchStart(dateProvider));
+        return new BettingRoom(atLeastOneHourBeforeMatchStart(dateProvider), dateProvider);
     }
 }

@@ -3,6 +3,7 @@ package com.github.matek2305.betting.core.match.domain;
 import com.github.matek2305.betting.commons.CommandResult;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinishRejected;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinished;
+import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import io.vavr.API;
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +22,8 @@ public class FinishMatch {
         var match = get(command.matchId());
         return API.Match(match.finish(command)).of(
                 Case($Right($()), this::publish),
-                Case($Left($()), this::publish));
+                Case($Left($()), this::publish)
+        );
     }
 
     private IncomingMatch get(MatchId matchId) {

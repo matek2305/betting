@@ -5,7 +5,7 @@ import com.github.matek2305.betting.core.match.domain.MatchScore;
 import lombok.Value;
 
 @Value
-public class MakeBetCommand{
+public class MakeBetCommand {
     PlayerId playerId;
     MatchId matchId;
     MatchScore bet;

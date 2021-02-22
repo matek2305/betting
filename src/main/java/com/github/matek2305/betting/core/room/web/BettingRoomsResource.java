@@ -1,10 +1,12 @@
 package com.github.matek2305.betting.core.room.web;
 
+import com.github.matek2305.betting.commons.CommandResult;
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
-import com.github.matek2305.betting.core.match.domain.IncomingMatches;
 import com.github.matek2305.betting.core.match.domain.Team;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand;
+import com.github.matek2305.betting.core.room.domain.IncomingMatches;
+import io.vavr.API;
 import lombok.RequiredArgsConstructor;
 
 import javax.ws.rs.Consumes;
@@ -19,6 +21,10 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.Predicates.instanceOf;
+
 @Path("betting_rooms")
 @RequiredArgsConstructor
 public class BettingRoomsResource {
@@ -32,10 +38,9 @@ public class BettingRoomsResource {
     @Path("/global/matches")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response add(AddNewMatchRequest request) {
-        return addIncomingMatch.add(toCreateCommand(request))
-                .map(nothing -> Response.status(Response.Status.CREATED))
-                .getOrElseGet(cause -> Response.status(Response.Status.BAD_REQUEST.getStatusCode(), cause.getLocalizedMessage()))
-                .build();
+        return API.Match(addIncomingMatch.add(toCommand(request))).of(
+                Case($(instanceOf(CommandResult.Allowed.class)), this::created),
+                Case($(instanceOf(CommandResult.Rejected.class)), this::badRequest));
     }
 
     @GET
@@ -58,7 +63,7 @@ public class BettingRoomsResource {
                 .collect(Collectors.toList());
     }
 
-    private AddIncomingMatchCommand toCreateCommand(AddNewMatchRequest request) {
+    private AddIncomingMatchCommand toCommand(AddNewMatchRequest request) {
         return new AddIncomingMatchCommand(
                 request.startDateTime(),
                 Team.of(request.homeTeamName()),
@@ -71,5 +76,16 @@ public class BettingRoomsResource {
                 match.homeTeam().name(),
                 match.awayTeam().name(),
                 match.startDateTime());
+    }
+
+    private Response created() {
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    private Response badRequest(CommandResult.Rejected rejected) {
+        return Response
+                .status(Response.Status.BAD_REQUEST)
+                .entity(rejected.rejectionReason())
+                .build();
     }
 }

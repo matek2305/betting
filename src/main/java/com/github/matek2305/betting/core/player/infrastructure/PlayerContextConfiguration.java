@@ -1,8 +1,8 @@
 package com.github.matek2305.betting.core.player.infrastructure;
 
-import com.github.matek2305.betting.core.match.domain.IncomingMatches;
 import com.github.matek2305.betting.core.player.domain.Betting;
 import com.github.matek2305.betting.core.player.domain.Players;
+import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;

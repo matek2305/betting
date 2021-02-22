@@ -2,24 +2,25 @@ package com.github.matek2305.betting.core.match.domain
 
 import com.github.matek2305.betting.commons.CommandResult
 import com.github.matek2305.betting.commons.DomainSpecification
+import com.github.matek2305.betting.core.match.RandomMatchFixtures
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
 import com.github.matek2305.betting.date.DateProvider
 import spock.lang.Subject
 
 import java.time.ZonedDateTime
 
-class FinishMatchTest extends DomainSpecification implements MatchFixtures {
+class FinishMatchTest extends DomainSpecification implements RandomMatchFixtures {
     
     def matches = withEventsPublisher({new InMemoryMatchRepository(it, new DateProvider()) })
     
     @Subject
     def finishMatch = new FinishMatch(matches, matches)
-    
+
     def "should finish incoming match"() {
         given:
-            def matchId = randomIncomingMatch(
+            def matchId = createRandomIncomingMatch(
                     ZonedDateTime.now().minusMinutes(90))
-            def score = randomScore()
+            def score = randomMatchScore()
         
         when:
             def result = finishMatch(matchId, score)
@@ -42,14 +43,14 @@ class FinishMatchTest extends DomainSpecification implements MatchFixtures {
 
     def "should throw match not found when trying to finish already finished match"() {
         given:
-            def matchId = randomIncomingMatch(
+            def matchId = createRandomIncomingMatch(
                     ZonedDateTime.now().minusMinutes(90))
 
         when:
-            finishMatch(matchId, randomScore())
+            finishMatch(matchId, randomMatchScore())
 
         and:
-            finishMatch(matchId, randomScore())
+            finishMatch(matchId, randomMatchScore())
 
         then:
             def matchNotFound = thrown(MatchNotFoundException)
@@ -58,11 +59,11 @@ class FinishMatchTest extends DomainSpecification implements MatchFixtures {
 
     def "should not allow to finish not started match"() {
         given:
-            def matchId = randomIncomingMatch(
+            def matchId = createRandomIncomingMatch(
                     ZonedDateTime.now().plusMinutes(30))
 
         when:
-            def result = finishMatch(matchId, randomScore())
+            def result = finishMatch(matchId, randomMatchScore())
 
         then:
             result.class == CommandResult.Rejected
@@ -78,9 +79,9 @@ class FinishMatchTest extends DomainSpecification implements MatchFixtures {
         return finishMatch.finishMatch(command)
     }
     
-    private MatchId randomIncomingMatch(ZonedDateTime startDateTime) {
-        var matchId = randomMatchId()
-        matches.publish(new MatchEvent.IncomingMatchCreated(matchId, startDateTime, randomTeam(), randomTeam()))
-        return matchId
+    private MatchId createRandomIncomingMatch(ZonedDateTime startDateTime) {
+        var incomingMatch = randomIncomingMatch(startDateTime)
+        matches.save(incomingMatch)
+        return incomingMatch.matchId()
     }
 }

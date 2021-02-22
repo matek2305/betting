@@ -4,14 +4,12 @@ import com.github.matek2305.betting.commons.EventsPublisher;
 import com.github.matek2305.betting.core.match.domain.FinishedMatch;
 import com.github.matek2305.betting.core.match.domain.FinishedMatches;
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
-import com.github.matek2305.betting.core.match.domain.IncomingMatches;
+import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import com.github.matek2305.betting.core.match.domain.Match;
 import com.github.matek2305.betting.core.match.domain.MatchEvent;
-import com.github.matek2305.betting.core.match.domain.MatchEvent.IncomingMatchCreated;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinished;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchResultCorrected;
 import com.github.matek2305.betting.core.match.domain.MatchId;
-import com.github.matek2305.betting.core.match.domain.MatchInformation;
 import com.github.matek2305.betting.core.match.domain.MatchNotFoundException;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
 import com.github.matek2305.betting.date.DateProvider;
@@ -29,9 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.github.matek2305.betting.core.match.domain.FinishMatchPolicy.afterMatchStarted;
-import static com.github.matek2305.betting.core.match.domain.MatchBettingPolicy.bettingAllowedBeforeMatchStartOnly;
-import static com.github.matek2305.betting.core.match.domain.MatchRewardingPolicy.defaultRewards;
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Maps.filterKeys;
 import static io.vavr.API.$;
@@ -75,13 +70,17 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
     public void publish(MatchEvent event) {
         API.Match(event).option(
 
-                Case($(instanceOf(IncomingMatchCreated.class)), this::createNewIncomingMatch),
                 Case($(instanceOf(MatchFinished.class)), this::finishMatch),
                 Case($(instanceOf(MatchResultCorrected.class)), this::correctMatchResult)
 
         ).forEach(match -> matches.put(match.matchId(), match));
 
         publisher.publish("matches", event);
+    }
+
+    @Override
+    public void save(IncomingMatch match) {
+        matches.put(match.matchId(), match);
     }
 
     @Override
@@ -125,18 +124,6 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
 
     private Predicate<Match> started() {
         return match -> dateProvider.getCurrentDateTime().isAfter(match.startDateTime());
-    }
-
-    private Match createNewIncomingMatch(IncomingMatchCreated incomingMatchCreated) {
-        return new IncomingMatch(
-                new MatchInformation(
-                        incomingMatchCreated.matchId(),
-                        incomingMatchCreated.startDateTime(),
-                        incomingMatchCreated.homeTeam(),
-                        incomingMatchCreated.awayTeam()),
-                bettingAllowedBeforeMatchStartOnly(dateProvider),
-                defaultRewards(),
-                afterMatchStarted(dateProvider));
     }
 
     private FinishedMatch finishMatch(MatchFinished matchFinished) {

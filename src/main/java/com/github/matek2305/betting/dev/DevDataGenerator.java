@@ -1,12 +1,16 @@
 package com.github.matek2305.betting.dev;
 
+import com.github.matek2305.betting.core.match.domain.IncomingMatch;
 import com.github.matek2305.betting.core.match.domain.MatchEvent;
 import com.github.matek2305.betting.core.match.domain.MatchId;
+import com.github.matek2305.betting.core.match.domain.MatchInformation;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
 import com.github.matek2305.betting.core.match.domain.MatchRewardingPolicy;
 import com.github.matek2305.betting.core.match.domain.MatchRewards;
 import com.github.matek2305.betting.core.match.domain.MatchScore;
 import com.github.matek2305.betting.core.match.domain.Team;
+import com.github.matek2305.betting.core.room.domain.IncomingMatches;
+import com.github.matek2305.betting.date.DateProvider;
 import io.quarkus.arc.profile.IfBuildProfile;
 import io.quarkus.runtime.Startup;
 import io.vavr.Tuple;
@@ -20,6 +24,9 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static com.github.matek2305.betting.core.match.domain.FinishMatchPolicy.afterMatchStarted;
+import static com.github.matek2305.betting.core.match.domain.MatchBettingPolicy.bettingAllowedBeforeMatchStartOnly;
 
 @Startup
 @ApplicationScoped
@@ -43,13 +50,15 @@ class DevDataGenerator {
             "Borussia Dortmund"
     };
 
+    private final IncomingMatches incomingMatches;
     private final MatchRepository matchRepository;
+    private final DateProvider dateProvider;
 
     @PostConstruct
     void load() {
         generate(this::publishRandomIncomingMatch, 10);
         generate(this::publishRandomStartedMatch, 3);
-        generate(this::publishRandomFinishedMatch, 4);
+        generate(this::publishRandomFinishedMatch, 2);
     }
 
     private void generate(Runnable what, int howMany) {
@@ -76,8 +85,17 @@ class DevDataGenerator {
         var matchId = MatchId.of(UUID.randomUUID());
         var teams = generateTeams();
 
-        matchRepository.publish(new MatchEvent.IncomingMatchCreated(
-                matchId, startDateTime, teams._1(), teams._2()));
+        incomingMatches.save(new IncomingMatch(
+                new MatchInformation(
+                        matchId,
+                        startDateTime,
+                        teams._1(),
+                        teams._2
+                ),
+                bettingAllowedBeforeMatchStartOnly(dateProvider),
+                MatchRewardingPolicy.defaultRewards(),
+                afterMatchStarted(dateProvider)
+        ));
 
         return matchId;
     }

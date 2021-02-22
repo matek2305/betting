@@ -1,8 +1,7 @@
 package com.github.matek2305.betting.core.player.domain
 
 import com.github.matek2305.betting.commons.DomainSpecification
-import com.github.matek2305.betting.core.match.domain.MatchEvent
-import com.github.matek2305.betting.core.match.domain.MatchFixtures
+import com.github.matek2305.betting.core.match.RandomMatchFixtures
 import com.github.matek2305.betting.core.match.domain.MatchId
 import com.github.matek2305.betting.core.match.domain.MatchScore
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
@@ -14,7 +13,7 @@ import java.time.ZonedDateTime
 
 import static java.time.ZonedDateTime.parse
 
-class BettingTest extends DomainSpecification implements MatchFixtures, PlayerFixtures {
+class BettingTest extends DomainSpecification implements RandomMatchFixtures, PlayerFixtures {
 
     def dateProviderMock = Mock(DateProvider)
 
@@ -31,8 +30,8 @@ class BettingTest extends DomainSpecification implements MatchFixtures, PlayerFi
 
         and:
             def matchStartDateTime = parse('2021-02-02T21:00Z')
-            def matchId = randomIncomingMatch(matchStartDateTime)
-            def playerId = randomPlayer()
+            def matchId = createRandomIncomingMatch(matchStartDateTime)
+            def playerId = createRandomPlayer()
 
         when:
             def bet = makeBet(playerId, matchId)
@@ -50,8 +49,8 @@ class BettingTest extends DomainSpecification implements MatchFixtures, PlayerFi
 
         and:
             def matchStartDateTime = parse('2021-02-02T21:00Z')
-            def matchId = randomIncomingMatch(matchStartDateTime)
-            def playerId = randomPlayer()
+            def matchId = createRandomIncomingMatch(matchStartDateTime)
+            def playerId = createRandomPlayer()
 
         when:
             makeBet(playerId, matchId)
@@ -68,8 +67,8 @@ class BettingTest extends DomainSpecification implements MatchFixtures, PlayerFi
 
         and:
             def matchStartDateTime = parse('2021-02-02T21:00Z')
-            def matchId = randomIncomingMatch(matchStartDateTime)
-            def playerId = randomPlayer()
+            def matchId = createRandomIncomingMatch(matchStartDateTime)
+            def playerId = createRandomPlayer()
 
         when:
             makeBet(playerId, matchId)
@@ -87,20 +86,20 @@ class BettingTest extends DomainSpecification implements MatchFixtures, PlayerFi
     }
 
     private MatchScore makeBet(PlayerId playerId, MatchId matchId) {
-        def bet = randomScore()
+        def bet = randomMatchScore()
         betting.makeBet(new MakeBetCommand(playerId, matchId, bet))
         return bet
     }
 
-    private PlayerId randomPlayer() {
+    private PlayerId createRandomPlayer() {
         var playerId = randomPlayerId()
         players.createWithId(playerId)
         return playerId
     }
 
-    private MatchId randomIncomingMatch(ZonedDateTime startDateTime) {
-        def matchId = randomMatchId()
-        matches.publish(new MatchEvent.IncomingMatchCreated(matchId, startDateTime, randomTeam(), randomTeam()))
-        return matchId
+    private MatchId createRandomIncomingMatch(ZonedDateTime startDateTime) {
+        def incomingMatch = randomIncomingMatch(startDateTime, dateProviderMock)
+        matches.save(incomingMatch)
+        return incomingMatch.matchId()
     }
 }

@@ -1,8 +1,8 @@
 package com.github.matek2305.betting.core.player.domain;
 
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
-import com.github.matek2305.betting.core.match.domain.IncomingMatches;
 import com.github.matek2305.betting.core.match.domain.MatchId;
+import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
