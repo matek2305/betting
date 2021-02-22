@@ -62,9 +62,9 @@ public class Player {
     }
 
     public Player handle(PointsRewarded pointsRewarded) {
-        var points = new BetPoints(bets.get(pointsRewarded.matchId()), pointsRewarded.points());
+        var pointsToAdd = new BetPoints(bets.get(pointsRewarded.matchId()), pointsRewarded.points());
         return withBets(bets.without(pointsRewarded.matchId()))
-                .withPoints(points.with(pointsRewarded.matchId(), points));
+                .withPoints(points.with(pointsRewarded.matchId(), pointsToAdd));
     }
 
     private PlayerBetMade betSuccessful(MatchId matchId, MatchScore bet) {

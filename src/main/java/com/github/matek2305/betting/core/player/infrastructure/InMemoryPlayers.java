@@ -50,12 +50,13 @@ public class InMemoryPlayers implements Players {
 
     @Override
     public void publish(PlayerEvent event) {
-        var player = Match(event).of(
-                Case($(instanceOf(PlayerBetMade.class)), this::savePlayerBet),
-                Case($(instanceOf(PointsRewarded.class)), this::rewardPoints),
-                Case($(), () -> players.get(event.playerId())));
+        Match(event).option(
 
-        players.put(player.playerId(), player);
+                Case($(instanceOf(PlayerBetMade.class)), this::savePlayerBet),
+                Case($(instanceOf(PointsRewarded.class)), this::rewardPoints)
+
+        ).forEach(player -> players.put(player.playerId(), player));
+
         publisher.publish("players", event);
     }
 

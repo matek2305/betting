@@ -15,6 +15,11 @@ public interface MatchEvent extends PublishableEvent {
         MatchId matchId;
         MatchScore result;
         MatchRewards rewards;
+
+        @Override
+        public boolean shouldPublish() {
+            return true;
+        }
     }
 
     @Value
