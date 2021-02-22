@@ -24,6 +24,7 @@ public interface PlayerEvent extends PublishableEvent {
         UUID eventId = UUID.randomUUID();
         PlayerId playerId;
         MatchId matchId;
+        String rejectionReason;
     }
 
     @Value

@@ -4,7 +4,9 @@ import com.github.matek2305.betting.core.match.domain.IncomingMatch;
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchScore;
 import com.github.matek2305.betting.core.player.domain.PlayerEvent.PlayerBetMade;
+import com.github.matek2305.betting.core.player.domain.PlayerEvent.PlayerBetRejected;
 import com.github.matek2305.betting.core.player.domain.PlayerEvent.PointsRewarded;
+import io.vavr.control.Either;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.With;
@@ -14,6 +16,8 @@ import java.util.function.Predicate;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
+import static io.vavr.control.Either.left;
+import static io.vavr.control.Either.right;
 
 @Getter
 @RequiredArgsConstructor
@@ -31,11 +35,11 @@ public class Player {
         this(playerId, new PlayerBets(), new PlayerPoints());
     }
 
-    PlayerEvent placeBet(IncomingMatch match, MatchScore bet) {
+    Either<PlayerBetRejected, PlayerBetMade> placeBet(IncomingMatch match, MatchScore bet) {
         if (match.isBettingAllowed()) {
-            return betSuccessful(match.matchId(), bet);
+            return right(betSuccessful(match.matchId(), bet));
         } else {
-            return betRejected(match.matchId());
+            return left(betRejected(match.matchId()));
         }
     }
 
@@ -63,12 +67,12 @@ public class Player {
                 .withPoints(points.with(pointsRewarded.matchId(), points));
     }
 
-    private PlayerEvent betSuccessful(MatchId matchId, MatchScore bet) {
+    private PlayerBetMade betSuccessful(MatchId matchId, MatchScore bet) {
         return new PlayerBetMade(playerId, matchId, bet);
     }
 
-    private PlayerEvent betRejected(MatchId matchId) {
-        return new PlayerEvent.PlayerBetRejected(playerId, matchId);
+    private PlayerBetRejected betRejected(MatchId matchId) {
+        return new PlayerBetRejected(playerId, matchId, "Bet rejected due to match betting policy.");
     }
 
     private static Predicate<MatchScore> winningTeamHit(MatchScore result) {
