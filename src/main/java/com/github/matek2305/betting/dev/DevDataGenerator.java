@@ -1,5 +1,6 @@
 package com.github.matek2305.betting.dev;
 
+import com.github.matek2305.betting.commons.DateProvider;
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
 import com.github.matek2305.betting.core.match.domain.MatchEvent;
 import com.github.matek2305.betting.core.match.domain.MatchId;
@@ -10,7 +11,6 @@ import com.github.matek2305.betting.core.match.domain.MatchRewards;
 import com.github.matek2305.betting.core.match.domain.MatchScore;
 import com.github.matek2305.betting.core.match.domain.Team;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
-import com.github.matek2305.betting.date.DateProvider;
 import io.quarkus.arc.profile.IfBuildProfile;
 import io.quarkus.runtime.Startup;
 import io.vavr.Tuple;

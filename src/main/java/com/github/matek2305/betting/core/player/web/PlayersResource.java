@@ -1,5 +1,6 @@
 package com.github.matek2305.betting.core.player.web;
 
+import com.github.matek2305.betting.commons.LoggedUser;
 import com.github.matek2305.betting.core.match.domain.Match;
 import com.github.matek2305.betting.core.match.domain.MatchInformation;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
@@ -8,7 +9,6 @@ import com.github.matek2305.betting.core.player.domain.Player;
 import com.github.matek2305.betting.core.player.domain.PlayerBets;
 import com.github.matek2305.betting.core.player.domain.PlayerId;
 import com.github.matek2305.betting.core.player.domain.Players;
-import com.github.matek2305.betting.security.LoggedUser;
 import lombok.RequiredArgsConstructor;
 
 import javax.ws.rs.GET;
@@ -30,7 +30,7 @@ public class PlayersResource {
     @GET
     @Path("/current")
     @Produces(MediaType.APPLICATION_JSON)
-    public PlayerResponse add() {
+    public PlayerResponse get() {
         return toResponse(players.getBy(PlayerId.of(loggedUser.getName())));
     }
 

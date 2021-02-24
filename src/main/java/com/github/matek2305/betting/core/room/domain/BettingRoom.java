@@ -1,9 +1,9 @@
 package com.github.matek2305.betting.core.room.domain;
 
+import com.github.matek2305.betting.commons.DateProvider;
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchInformation;
-import com.github.matek2305.betting.date.DateProvider;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 

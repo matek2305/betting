@@ -1,8 +1,8 @@
 package com.github.matek2305.betting.core.room.infrastructure;
 
+import com.github.matek2305.betting.commons.DateProvider;
 import com.github.matek2305.betting.core.room.domain.BettingRoom;
 import com.github.matek2305.betting.core.room.domain.BettingRoomRepository;
-import com.github.matek2305.betting.date.DateProvider;
 import lombok.RequiredArgsConstructor;
 
 import javax.enterprise.context.ApplicationScoped;

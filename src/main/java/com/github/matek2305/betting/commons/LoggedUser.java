@@ -1,4 +1,4 @@
-package com.github.matek2305.betting.security;
+package com.github.matek2305.betting.commons;
 
 public interface LoggedUser {
 

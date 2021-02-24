@@ -1,10 +1,10 @@
 package com.github.matek2305.betting.core.match.infrastructure;
 
+import com.github.matek2305.betting.commons.DateProvider;
 import com.github.matek2305.betting.commons.EventsPublisher;
 import com.github.matek2305.betting.core.match.domain.FinishedMatch;
 import com.github.matek2305.betting.core.match.domain.FinishedMatches;
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
-import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import com.github.matek2305.betting.core.match.domain.Match;
 import com.github.matek2305.betting.core.match.domain.MatchEvent;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinished;
@@ -12,7 +12,7 @@ import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchResultCorr
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchNotFoundException;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
-import com.github.matek2305.betting.date.DateProvider;
+import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import io.vavr.API;
 import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;

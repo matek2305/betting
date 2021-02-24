@@ -6,7 +6,7 @@ import com.github.matek2305.betting.core.match.domain.MatchInformation;
 import com.github.matek2305.betting.core.match.domain.MatchRewards;
 import com.github.matek2305.betting.core.match.domain.MatchScore;
 import com.github.matek2305.betting.core.match.domain.Team;
-import com.github.matek2305.betting.date.DateProvider;
+import com.github.matek2305.betting.commons.DateProvider;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 
@@ -20,7 +20,7 @@ import static com.github.matek2305.betting.core.match.domain.MatchRewardingPolic
 public interface RandomMatchFixtures {
 
     default IncomingMatch randomIncomingMatch(ZonedDateTime startDateTime) {
-        return randomIncomingMatch(startDateTime, new DateProvider());
+        return randomIncomingMatch(startDateTime, ZonedDateTime::now);
     }
 
     default IncomingMatch randomIncomingMatch(ZonedDateTime startDateTime, DateProvider dateProvider) {

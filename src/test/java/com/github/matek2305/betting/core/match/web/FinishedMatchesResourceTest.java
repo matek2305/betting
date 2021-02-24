@@ -3,7 +3,7 @@ package com.github.matek2305.betting.core.match.web;
 import com.github.matek2305.betting.core.match.RandomMatchFixtures;
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
-import com.github.matek2305.betting.date.DateProvider;
+import com.github.matek2305.betting.commons.DateProvider;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;

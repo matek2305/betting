@@ -1,4 +1,4 @@
-package com.github.matek2305.betting.commons;
+package com.github.matek2305.betting.configuration;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

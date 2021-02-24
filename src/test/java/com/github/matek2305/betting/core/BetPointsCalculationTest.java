@@ -16,7 +16,7 @@ import com.github.matek2305.betting.core.player.domain.Points;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
-import com.github.matek2305.betting.date.DateProvider;
+import com.github.matek2305.betting.commons.DateProvider;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.vavr.control.Option;
@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 
+import java.time.ZonedDateTime;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -60,7 +61,7 @@ class BetPointsCalculationTest {
     @BeforeAll
     static void beforeAll() {
         var dateProviderMock = mock(DateProvider.class);
-        when(dateProviderMock.getCurrentDateTime()).thenCallRealMethod();
+        when(dateProviderMock.getCurrentDateTime()).then(inv -> ZonedDateTime.now());
         QuarkusMock.installMockForType(dateProviderMock, DateProvider.class);
     }
 

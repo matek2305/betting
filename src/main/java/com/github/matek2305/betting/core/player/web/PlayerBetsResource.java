@@ -1,12 +1,12 @@
 package com.github.matek2305.betting.core.player.web;
 
 import com.github.matek2305.betting.commons.CommandResult;
+import com.github.matek2305.betting.commons.LoggedUser;
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchScore;
 import com.github.matek2305.betting.core.player.domain.Betting;
 import com.github.matek2305.betting.core.player.domain.MakeBetCommand;
 import com.github.matek2305.betting.core.player.domain.PlayerId;
-import com.github.matek2305.betting.security.LoggedUser;
 import io.vavr.API;
 import lombok.RequiredArgsConstructor;
 

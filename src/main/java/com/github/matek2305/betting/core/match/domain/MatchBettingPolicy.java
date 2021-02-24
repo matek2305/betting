@@ -1,6 +1,6 @@
 package com.github.matek2305.betting.core.match.domain;
 
-import com.github.matek2305.betting.date.DateProvider;
+import com.github.matek2305.betting.commons.DateProvider;
 import lombok.RequiredArgsConstructor;
 
 public interface MatchBettingPolicy {

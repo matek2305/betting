@@ -1,17 +1,17 @@
 package com.github.matek2305.betting.core.match.domain
 
 import com.github.matek2305.betting.commons.CommandResult
+import com.github.matek2305.betting.commons.DateProvider
 import com.github.matek2305.betting.commons.DomainSpecification
 import com.github.matek2305.betting.core.match.RandomMatchFixtures
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
-import com.github.matek2305.betting.date.DateProvider
 import spock.lang.Subject
 
 import java.time.ZonedDateTime
 
 class FinishMatchTest extends DomainSpecification implements RandomMatchFixtures {
     
-    def matches = withEventsPublisher({new InMemoryMatchRepository(it, new DateProvider()) })
+    def matches = withEventsPublisher({new InMemoryMatchRepository(it, { ZonedDateTime.now() }) })
     
     @Subject
     def finishMatch = new FinishMatch(matches, matches)

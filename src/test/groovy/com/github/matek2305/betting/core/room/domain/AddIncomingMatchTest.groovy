@@ -1,11 +1,11 @@
 package com.github.matek2305.betting.core.room.domain
 
 import com.github.matek2305.betting.commons.CommandResult
+import com.github.matek2305.betting.commons.DateProvider
 import com.github.matek2305.betting.commons.DomainSpecification
 import com.github.matek2305.betting.core.match.RandomMatchFixtures
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
 import com.github.matek2305.betting.core.room.infrastructure.InMemoryBettingRoomRepository
-import com.github.matek2305.betting.date.DateProvider
 import spock.lang.Subject
 
 import java.time.ZonedDateTime

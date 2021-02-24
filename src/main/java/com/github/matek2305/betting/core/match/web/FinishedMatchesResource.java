@@ -1,6 +1,5 @@
 package com.github.matek2305.betting.core.match.web;
 
-import com.github.matek2305.betting.commons.CommandResult;
 import com.github.matek2305.betting.commons.CommandResult.Allowed;
 import com.github.matek2305.betting.commons.CommandResult.Rejected;
 import com.github.matek2305.betting.core.match.domain.FinishMatch;
