@@ -10,12 +10,8 @@ import javax.ws.rs.core.MultivaluedMap;
 @ApplicationScoped
 class FootballApiClientHeadersFactory implements ClientHeadersFactory {
 
-    private final String apiKey;
-
-    FootballApiClientHeadersFactory(
-            @ConfigProperty(name = "api-football.rapid-api-key") String rapidApiKey) {
-        this.apiKey = rapidApiKey;
-    }
+    @ConfigProperty(name = "betting.api-football.rapid-api-key")
+    String apiKey;
 
     @Override
     public MultivaluedMap<String, String> update(

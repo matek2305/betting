@@ -9,6 +9,7 @@ import com.github.matek2305.betting.core.match.domain.MatchScore;
 import io.vavr.API;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -26,6 +27,7 @@ public class FinishedMatchesResource {
     private final FinishMatch finishMatch;
 
     @POST
+    @RolesAllowed("betting-app-admin")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response finish(FinishMatchRequest request) {
         return API.Match(finishMatch.finishMatch(toCommand(request))).of(

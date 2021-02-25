@@ -9,7 +9,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
 @Path("/v3")
-@RegisterRestClient(configKey = "api-football")
+@RegisterRestClient(configKey = "betting.api-football")
 @RegisterClientHeaders(FootballApiClientHeadersFactory.class)
 public interface FootballApiClient {
 

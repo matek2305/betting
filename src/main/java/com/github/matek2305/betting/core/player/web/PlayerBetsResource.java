@@ -10,6 +10,7 @@ import com.github.matek2305.betting.core.player.domain.PlayerId;
 import io.vavr.API;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -28,6 +29,7 @@ public class PlayerBetsResource {
     private final LoggedUser loggedUser;
 
     @POST
+    @RolesAllowed("betting-app-user")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response add(AddPlayerBetRequest request) {
         return API.Match(betting.makeBet(toMakeBetCommand(request))).of(

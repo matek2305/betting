@@ -9,6 +9,7 @@ import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import io.vavr.API;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -36,6 +37,7 @@ public class BettingRoomsResource {
 
     @POST
     @Path("/global/matches")
+    @RolesAllowed("betting-app-admin")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response add(AddNewMatchRequest request) {
         return API.Match(addIncomingMatch.add(toCommand(request))).of(
@@ -45,6 +47,7 @@ public class BettingRoomsResource {
 
     @GET
     @Path("/global/next_matches")
+    @RolesAllowed("betting-app-user")
     @Produces(MediaType.APPLICATION_JSON)
     public List<MatchResponse> getNext(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
         return incomingMatches.findNext(howMany)
@@ -55,6 +58,7 @@ public class BettingRoomsResource {
 
     @GET
     @Path("/global/started_matches")
+    @RolesAllowed("betting-app-user")
     @Produces(MediaType.APPLICATION_JSON)
     public List<MatchResponse> getStarted(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
         return incomingMatches.findStarted(howMany)
