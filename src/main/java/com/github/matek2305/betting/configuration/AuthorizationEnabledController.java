@@ -1,6 +1,5 @@
-package com.github.matek2305.betting.dev;
+package com.github.matek2305.betting.configuration;
 
-import io.quarkus.arc.profile.IfBuildProfile;
 import io.quarkus.security.spi.runtime.AuthorizationController;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -10,10 +9,9 @@ import javax.enterprise.inject.Alternative;
 import javax.interceptor.Interceptor;
 
 @Alternative
-@IfBuildProfile("dev")
 @Priority(Interceptor.Priority.LIBRARY_AFTER)
 @ApplicationScoped
-class DevAuthorizationController extends AuthorizationController {
+class AuthorizationEnabledController extends AuthorizationController {
 
     @ConfigProperty(name = "betting.auth.enabled", defaultValue = "true")
     boolean authorizationEnabled;
