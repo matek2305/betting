@@ -10,7 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 
 @Startup
 @ApplicationScoped
-@IfBuildProperty(name = "api-football.enabled", stringValue = "true")
+@IfBuildProperty(name = "betting.api-football.enabled", stringValue = "true")
 class FixturesLoader {
 
     private final FootballApiClient client;

@@ -12,6 +12,7 @@ import com.github.matek2305.betting.core.match.domain.MatchScore;
 import com.github.matek2305.betting.core.match.domain.Team;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import io.quarkus.arc.profile.IfBuildProfile;
+import io.quarkus.arc.properties.IfBuildProperty;
 import io.quarkus.runtime.Startup;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -31,6 +32,7 @@ import static com.github.matek2305.betting.core.match.domain.MatchBettingPolicy.
 @Startup
 @ApplicationScoped
 @IfBuildProfile("dev")
+@IfBuildProperty(name = "betting.api-football.enabled", stringValue = "false")
 @RequiredArgsConstructor
 class DevDataGenerator {
 
