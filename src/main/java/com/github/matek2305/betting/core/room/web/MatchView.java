@@ -6,9 +6,9 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Value
-public class MatchResponse {
+public class MatchView {
     UUID matchId;
     String homeTeamName;
     String awayTeamName;
-    ZonedDateTime startDateTime;
+    ZonedDateTime when;
 }

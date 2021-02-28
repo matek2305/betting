@@ -4,6 +4,7 @@ import com.github.matek2305.betting.commons.CommandResult;
 import com.github.matek2305.betting.core.match.domain.FinishMatch;
 import com.github.matek2305.betting.core.match.domain.FinishMatchCommand;
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
+import com.github.matek2305.betting.core.match.domain.Match;
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchScore;
 import com.github.matek2305.betting.core.match.domain.Team;
@@ -17,6 +18,8 @@ import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import com.github.matek2305.betting.commons.DateProvider;
+import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.h2.H2DatabaseTestResource;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.vavr.control.Option;
@@ -38,6 +41,7 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @Tag("integration")
+@QuarkusTestResource(H2DatabaseTestResource.class)
 class BetPointsCalculationTest {
 
     @Inject
@@ -93,7 +97,7 @@ class BetPointsCalculationTest {
         return incomingMatches.findNext(1)
                 .stream()
                 .findFirst()
-                .map(IncomingMatch::matchId)
+                .map(Match::matchId)
                 .orElseThrow(() -> new IllegalStateException("Added match not found"));
     }
 

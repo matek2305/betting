@@ -9,10 +9,10 @@ import lombok.RequiredArgsConstructor;
 import static io.vavr.control.Either.left;
 import static io.vavr.control.Either.right;
 
+@Getter
 @RequiredArgsConstructor
 public final class IncomingMatch implements Match {
 
-    @Getter
     private final MatchInformation matchInformation;
     private final MatchBettingPolicy bettingPolicy;
     private final MatchRewardingPolicy rewardingPolicy;
@@ -40,12 +40,5 @@ public final class IncomingMatch implements Match {
                     finishMatchPolicy.getRuleDescription()
             ));
         }
-    }
-
-    public FinishedMatch handle(MatchFinished matchFinished) {
-        return new FinishedMatch(
-                matchInformation,
-                matchFinished.result(),
-                rewardingPolicy);
     }
 }

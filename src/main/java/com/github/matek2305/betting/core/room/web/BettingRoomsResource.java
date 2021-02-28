@@ -1,7 +1,7 @@
 package com.github.matek2305.betting.core.room.web;
 
 import com.github.matek2305.betting.commons.CommandResult;
-import com.github.matek2305.betting.core.match.domain.IncomingMatch;
+import com.github.matek2305.betting.core.match.domain.Match;
 import com.github.matek2305.betting.core.match.domain.Team;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand;
@@ -49,10 +49,10 @@ public class BettingRoomsResource {
     @Path("/global/next_matches")
     @RolesAllowed("betting-app-user")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<MatchResponse> getNext(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
+    public List<MatchView> getNext(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
         return incomingMatches.findNext(howMany)
                 .stream()
-                .map(this::toResponse)
+                .map(this::viewOf)
                 .collect(Collectors.toList());
     }
 
@@ -60,10 +60,10 @@ public class BettingRoomsResource {
     @Path("/global/started_matches")
     @RolesAllowed("betting-app-user")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<MatchResponse> getStarted(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
+    public List<MatchView> getStarted(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
         return incomingMatches.findStarted(howMany)
                 .stream()
-                .map(this::toResponse)
+                .map(this::viewOf)
                 .collect(Collectors.toList());
     }
 
@@ -74,11 +74,11 @@ public class BettingRoomsResource {
                 Team.of(request.awayTeamName()));
     }
 
-    private MatchResponse toResponse(IncomingMatch match) {
-        return new MatchResponse(
+    private MatchView viewOf(Match match) {
+        return new MatchView(
                 match.matchId().id(),
-                match.homeTeam().name(),
-                match.awayTeam().name(),
+                match.homeTeamName(),
+                match.awayTeamName(),
                 match.startDateTime());
     }
 

@@ -91,7 +91,7 @@ class DevDataGenerator {
                 new MatchInformation(
                         matchId,
                         startDateTime,
-                        teams._1(),
+                        teams._1,
                         teams._2
                 ),
                 bettingAllowedBeforeMatchStartOnly(dateProvider),

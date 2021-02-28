@@ -1,7 +1,6 @@
 package com.github.matek2305.betting.core.match.domain
 
 import com.github.matek2305.betting.commons.CommandResult
-import com.github.matek2305.betting.commons.DateProvider
 import com.github.matek2305.betting.commons.DomainSpecification
 import com.github.matek2305.betting.core.match.RandomMatchFixtures
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository

@@ -4,10 +4,10 @@ import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchResultCorr
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@Getter
 @RequiredArgsConstructor
 public class FinishedMatch implements Match {
 
-    @Getter
     private final MatchInformation matchInformation;
     private final MatchScore result;
     private final MatchRewardingPolicy rewardingPolicy;
@@ -21,12 +21,5 @@ public class FinishedMatch implements Match {
                         rewardingPolicy.getPointsForWinningTeamHit(),
                         rewardingPolicy.getPointsForDraw(),
                         rewardingPolicy.getPointsForMissingBet()));
-    }
-
-    public FinishedMatch handle(MatchResultCorrected resultCorrected) {
-        return new FinishedMatch(
-                matchInformation,
-                resultCorrected.result(),
-                rewardingPolicy);
     }
 }

@@ -8,12 +8,12 @@ public interface Match {
         return matchInformation().matchId();
     }
 
-    default Team homeTeam() {
-        return matchInformation().homeTeam();
+    default String homeTeamName() {
+        return matchInformation().homeTeam().name();
     }
 
-    default Team awayTeam() {
-        return matchInformation().awayTeam();
+    default String awayTeamName() {
+        return matchInformation().awayTeam().name();
     }
 
     default ZonedDateTime startDateTime() {
