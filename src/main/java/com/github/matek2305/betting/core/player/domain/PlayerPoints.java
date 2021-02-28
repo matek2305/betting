@@ -21,6 +21,10 @@ public class PlayerPoints {
         this(Collections.emptyMap());
     }
 
+    public Map<MatchId, BetPoints> getAll() {
+        return ImmutableMap.copyOf(points);
+    }
+
     public Option<BetPoints> get(MatchId matchId) {
         return Option.of(points.get(matchId));
     }

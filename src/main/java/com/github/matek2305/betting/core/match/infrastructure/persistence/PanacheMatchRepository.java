@@ -87,6 +87,15 @@ class PanacheMatchRepository
     }
 
     @Override
+    public Set<FinishedMatch> getFinishedMatchesBy(Set<MatchId> matchIds) {
+        var uuids = matchIds.stream().map(MatchId::id).collect(Collectors.toSet());
+        return list("uuid in ?1 AND finished = true", uuids)
+                .stream()
+                .map(factory::createFinishedMatch)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
     @Transactional
     public void save(IncomingMatch match) {
         var matchEntity = new MatchEntity();
@@ -105,7 +114,7 @@ class PanacheMatchRepository
 
     @Override
     public List<Match> findNext(int howMany) {
-        return list("startDateTime > ?1", dateProvider.getCurrentDateTime())
+        return list("startDateTime > ?1 order by startDateTime", dateProvider.getCurrentDateTime())
                 .stream()
                 .map(factory::create)
                 .collect(Collectors.toList());
@@ -113,7 +122,7 @@ class PanacheMatchRepository
 
     @Override
     public List<Match> findStarted(int howMany) {
-        return list("startDateTime < ?1 and finished = false", dateProvider.getCurrentDateTime())
+        return list("startDateTime < ?1 and finished = false order by startDateTime", dateProvider.getCurrentDateTime())
                 .stream()
                 .map(factory::create)
                 .collect(Collectors.toList());

@@ -2,7 +2,6 @@ package com.github.matek2305.betting.configuration;
 
 import com.github.matek2305.betting.commons.DateProvider;
 import com.github.matek2305.betting.commons.EventsPublisher;
-import com.github.matek2305.betting.commons.LoggedUser;
 import io.vertx.core.eventbus.EventBus;
 import lombok.RequiredArgsConstructor;
 
@@ -26,10 +25,5 @@ class CommonContextConfiguration {
     @Produces
     public EventsPublisher eventsPublisher() {
         return EventsPublisher.explicitPublish(eventBus::publish);
-    }
-
-    @Produces
-    public LoggedUser loggedUser() {
-        return () -> "test@user.com";
     }
 }

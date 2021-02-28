@@ -23,7 +23,15 @@ class DomainMatchFactory {
     private final DateProvider dateProvider;
 
     Match create(MatchEntity entity) {
-        return entity.finished ? toFinishedMatch(entity) : toIncomingMatch(entity);
+        return entity.finished ? createFinishedMatch(entity) : toIncomingMatch(entity);
+    }
+
+    FinishedMatch createFinishedMatch(MatchEntity entity) {
+        return new FinishedMatch(
+                toMatchInformation(entity),
+                MatchScore.of(entity.homeTeamScore, entity.awayTeamScore),
+                defaultRewards()
+        );
     }
 
     private IncomingMatch toIncomingMatch(MatchEntity entity) {
@@ -32,14 +40,6 @@ class DomainMatchFactory {
                 bettingAllowedBeforeMatchStartOnly(dateProvider),
                 defaultRewards(),
                 afterMatchStarted(dateProvider)
-        );
-    }
-
-    private FinishedMatch toFinishedMatch(MatchEntity entity) {
-        return new FinishedMatch(
-                toMatchInformation(entity),
-                MatchScore.of(entity.homeTeamScore, entity.awayTeamScore),
-                defaultRewards()
         );
     }
 

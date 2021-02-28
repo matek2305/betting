@@ -83,6 +83,16 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
     }
 
     @Override
+    public Set<FinishedMatch> getFinishedMatchesBy(Set<MatchId> matchIds) {
+        return matches.values()
+                .stream()
+                .filter(match -> matchIds.contains(match.matchId()))
+                .filter(instanceOf(FinishedMatch.class))
+                .map(match -> (FinishedMatch) match)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
     public List<Match> findNext(int howMany) {
         return findBy(started().negate(), howMany);
     }
