@@ -1,17 +1,11 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: Java CI with Maven
+name: Deploy to Heroku
 
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -19,10 +13,26 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v1
       with:
-        java-version: 14
+        java-version: 11
     - name: Build with Maven
       run: ./mvnw -B package verify --file pom.xml
     - name: Upload code coverage to codecov.io
       uses: codecov/codecov-action@v1
-    - name: Build naative executable
+    - name: Build native executable
       run: ./mvnw package -Pnative -Dquarkus.native.container-build=true
+    - name: Build docker image
+      run: docker build -f src/main/docker/Dockerfile.native -t matek2305/betting .
+    - name: Tag docker image for Heroku deployment
+      run: docker tag matek2305/betting registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web
+    - name: Login to Heroku container registry
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: heroku container:login
+    - name: Push image to Heroku container registry
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: docker push registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web
+    - name: Release app
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: heroku container:release web -a ${{ secrets.HEROKU_APP_NAME }}
