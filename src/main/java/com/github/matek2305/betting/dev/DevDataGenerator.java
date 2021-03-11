@@ -32,7 +32,6 @@ import static com.github.matek2305.betting.core.match.domain.MatchBettingPolicy.
 @Startup
 @ApplicationScoped
 @IfBuildProfile("dev")
-@IfBuildProperty(name = "betting.api-football.enabled", stringValue = "false")
 @RequiredArgsConstructor
 class DevDataGenerator {
 

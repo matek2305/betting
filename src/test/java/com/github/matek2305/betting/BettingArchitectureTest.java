@@ -20,22 +20,13 @@ class BettingArchitectureTest {
                     .resideInAPackage("..betting.configuration..");
 
     @ArchTest
-    static final ArchRule livescore_should_not_depend_on_core =
-            noClasses()
-                    .that()
-                    .resideInAPackage("..betting.livescore..")
-                    .should()
-                    .dependOnClassesThat()
-                    .resideInAPackage("..betting.core..");
-
-    @ArchTest
-    static final ArchRule commons_should_not_depend_on_core_or_livescore =
+    static final ArchRule commons_should_not_depend_on_core =
             noClasses()
                     .that()
                     .resideInAPackage("..betting.commons..")
                     .should()
                     .dependOnClassesThat()
-                    .resideInAnyPackage("..betting.core..", "..betting.livescore..");
+                    .resideInAnyPackage("..betting.core..");
 
     @ArchTest
     static final ArchRule domains_should_not_depend_on_framework =
