@@ -2,6 +2,7 @@ package com.github.matek2305.betting.core.room.domain;
 
 import com.github.matek2305.betting.commons.CommandResult;
 import com.github.matek2305.betting.core.match.domain.IncomingMatch;
+import com.github.matek2305.betting.core.match.domain.external.ExternalMatch;
 import io.vavr.API;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +19,25 @@ public class AddIncomingMatch {
     private final BettingRoomRepository bettingRoomRepository;
     private final IncomingMatches incomingMatches;
 
+    public CommandResult add(AddExternalMatchCommand command) {
+        var globalRoom = bettingRoomRepository.getGlobal();
+        return API.Match(globalRoom.add(command)).of(
+                Case($Right($()), this::save),
+                Case($Left($()), this::rejected)
+        );
+    }
+
     public CommandResult add(AddIncomingMatchCommand command) {
         var globalRoom = bettingRoomRepository.getGlobal();
         return API.Match(globalRoom.add(command)).of(
                 Case($Right($()), this::save),
                 Case($Left($()), this::rejected)
         );
+    }
+
+    private CommandResult save(ExternalMatch match) {
+        incomingMatches.save(match);
+        return CommandResult.allowed();
     }
 
     private CommandResult save(IncomingMatch match) {

@@ -3,6 +3,9 @@ package com.github.matek2305.betting.core.room.web;
 import com.github.matek2305.betting.commons.CommandResult;
 import com.github.matek2305.betting.core.match.domain.Match;
 import com.github.matek2305.betting.core.match.domain.Team;
+import com.github.matek2305.betting.core.match.domain.external.ExternalId;
+import com.github.matek2305.betting.core.match.domain.external.Origin;
+import com.github.matek2305.betting.core.room.domain.AddExternalMatchCommand;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
@@ -40,7 +43,7 @@ public class BettingRoomsResource {
     @RolesAllowed("betting-app-admin")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response add(AddNewMatchRequest request) {
-        return API.Match(addIncomingMatch.add(toCommand(request))).of(
+        return API.Match(handle(request)).of(
                 Case($(instanceOf(CommandResult.Allowed.class)), this::created),
                 Case($(instanceOf(CommandResult.Rejected.class)), this::badRequest));
     }
@@ -67,7 +70,22 @@ public class BettingRoomsResource {
                 .collect(Collectors.toList());
     }
 
-    private AddIncomingMatchCommand toCommand(AddNewMatchRequest request) {
+    private CommandResult handle(AddNewMatchRequest request) {
+        return request.externalId() != null
+                ? addIncomingMatch.add(toAddExternalMatchCommand(request))
+                : addIncomingMatch.add(toAddIncomingMatchCommand(request));
+    }
+
+    private AddExternalMatchCommand toAddExternalMatchCommand(AddNewMatchRequest request) {
+        return new AddExternalMatchCommand(
+                request.startDateTime(),
+                Team.of(request.homeTeamName()),
+                Team.of(request.awayTeamName()),
+                Origin.of(request.origin()),
+                ExternalId.of(request.externalId()));
+    }
+
+    private AddIncomingMatchCommand toAddIncomingMatchCommand(AddNewMatchRequest request) {
         return new AddIncomingMatchCommand(
                 request.startDateTime(),
                 Team.of(request.homeTeamName()),

@@ -9,4 +9,6 @@ class AddNewMatchRequest {
     String homeTeamName;
     String awayTeamName;
     ZonedDateTime startDateTime;
+    String origin;
+    String externalId;
 }

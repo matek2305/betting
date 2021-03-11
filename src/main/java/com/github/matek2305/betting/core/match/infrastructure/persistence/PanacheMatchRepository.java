@@ -12,6 +12,7 @@ import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchResultCorr
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchNotFoundException;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
+import com.github.matek2305.betting.core.match.domain.external.ExternalMatch;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.vavr.API;
@@ -97,14 +98,21 @@ class PanacheMatchRepository
 
     @Override
     @Transactional
-    public void save(IncomingMatch match) {
-        var matchEntity = new MatchEntity();
-        matchEntity.uuid = match.matchId().id();
-        matchEntity.homeTeamName = match.homeTeamName();
-        matchEntity.awayTeamName = match.awayTeamName();
-        matchEntity.startDateTime = match.startDateTime();
-        matchEntity.finished = false;
+    public void save(ExternalMatch match) {
+        var matchEntity = createMatchEntity(match.match());
         persist(matchEntity);
+
+        var externalMatchEntity = new ExternalMatchEntity();
+        externalMatchEntity.matchEntity = matchEntity;
+        externalMatchEntity.origin = match.origin().name();
+        externalMatchEntity.externalId = match.externalId().id();
+        externalMatchEntity.persist();
+    }
+
+    @Override
+    @Transactional
+    public void save(IncomingMatch match) {
+        persist(createMatchEntity(match));
     }
 
     @Override
@@ -131,5 +139,15 @@ class PanacheMatchRepository
     private MatchEntity getEntityBy(MatchId matchId) {
         return find("uuid", matchId.id()).firstResultOptional()
                 .orElseThrow(() -> new MatchNotFoundException(matchId));
+    }
+
+    private MatchEntity createMatchEntity(IncomingMatch match) {
+        var matchEntity = new MatchEntity();
+        matchEntity.uuid = match.matchId().id();
+        matchEntity.homeTeamName = match.homeTeamName();
+        matchEntity.awayTeamName = match.awayTeamName();
+        matchEntity.startDateTime = match.startDateTime();
+        matchEntity.finished = false;
+        return matchEntity;
     }
 }

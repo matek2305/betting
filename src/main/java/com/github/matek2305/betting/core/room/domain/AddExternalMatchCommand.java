@@ -8,8 +8,10 @@ import lombok.Value;
 import java.time.ZonedDateTime;
 
 @Value
-public class AddIncomingMatchCommand {
+public class AddExternalMatchCommand {
     ZonedDateTime startDateTime;
     Team homeTeam;
     Team awayTeam;
+    Origin origin;
+    ExternalId externalId;
 }

@@ -11,6 +11,7 @@ import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinished;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchResultCorrected;
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
+import com.github.matek2305.betting.core.match.domain.external.ExternalMatch;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import io.vavr.API;
 import io.vavr.control.Option;
@@ -69,6 +70,11 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
 
     @Override
     public void save(IncomingMatch match) {
+        matches.put(match.matchId(), match);
+    }
+
+    @Override
+    public void save(ExternalMatch match) {
         matches.put(match.matchId(), match);
     }
 
