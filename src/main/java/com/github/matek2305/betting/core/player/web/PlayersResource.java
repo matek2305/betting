@@ -1,32 +1,20 @@
 package com.github.matek2305.betting.core.player.web;
 
 import com.github.matek2305.betting.commons.LoggedUser;
-import com.github.matek2305.betting.core.match.domain.FinishedMatch;
-import com.github.matek2305.betting.core.match.domain.FinishedMatches;
-import com.github.matek2305.betting.core.match.domain.Match;
-import com.github.matek2305.betting.core.match.domain.MatchId;
-import com.github.matek2305.betting.core.match.domain.MatchRepository;
-import com.github.matek2305.betting.core.match.domain.MatchScore;
-import com.github.matek2305.betting.core.player.domain.BetPoints;
-import com.github.matek2305.betting.core.player.domain.Player;
-import com.github.matek2305.betting.core.player.domain.PlayerBets;
-import com.github.matek2305.betting.core.player.domain.PlayerId;
-import com.github.matek2305.betting.core.player.domain.PlayerPoints;
-import com.github.matek2305.betting.core.player.domain.Players;
+import com.github.matek2305.betting.core.match.domain.*;
+import com.github.matek2305.betting.core.player.domain.*;
+import io.quarkus.security.Authenticated;
 import lombok.RequiredArgsConstructor;
 
-import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.SecurityContext;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Authenticated
 @Path("players")
 @RequiredArgsConstructor
 public class PlayersResource {
@@ -38,7 +26,6 @@ public class PlayersResource {
 
     @GET
     @Path("/current")
-    @RolesAllowed("betting-app-user")
     @Produces(MediaType.APPLICATION_JSON)
     public PlayerResponse get() {
         return toResponse(players.getBy(PlayerId.of(loggedUser.getName())));
