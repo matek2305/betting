@@ -34,18 +34,22 @@ public class LoginResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response login(LoginRequest request) throws URISyntaxException {
-        return RestClientBuilder.newBuilder()
-                .property("microprofile.rest.client.disable.default.mapper", true)
-                .baseUri(new URI(firebaseAuthUrl))
-                .build(FirebaseAuthService.class)
+        return Response.fromResponse(
+                RestClientBuilder.newBuilder()
+                        .property("microprofile.rest.client.disable.default.mapper", true)
+                        .baseUri(new URI(firebaseAuthUrl))
+                        .build(FirebaseAuthService.class)
 
-                .signInWithPassword(
-                        new SignInWithPasswordRequest(
-                                request.username() + "@" + firebaseAuthDomain,
-                                request.password()
-                        ),
-                        firebaseAuthAPIKey
-                );
+                        .signInWithPassword(
+                                new SignInWithPasswordRequest(
+                                        request.username() + "@" + firebaseAuthDomain,
+                                        request.password()
+                                ),
+                                firebaseAuthAPIKey
+                        )
+        )
+                .header("Transfer-Encoding", null)
+                .build();
     }
 
     @Value
