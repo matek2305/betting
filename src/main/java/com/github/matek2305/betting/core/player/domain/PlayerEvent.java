@@ -17,6 +17,11 @@ public interface PlayerEvent extends PublishableEvent {
         PlayerId playerId;
         MatchId matchId;
         MatchScore bet;
+
+        @Override
+        public boolean shouldPublish() {
+            return true;
+        }
     }
 
     @Value

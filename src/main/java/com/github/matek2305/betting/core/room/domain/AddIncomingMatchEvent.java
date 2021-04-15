@@ -12,6 +12,11 @@ public interface AddIncomingMatchEvent extends PublishableEvent {
     class IncomingMatchAdded implements AddIncomingMatchEvent {
         UUID eventId = UUID.randomUUID();
         NewMatch match;
+
+        @Override
+        public boolean shouldPublish() {
+            return true;
+        }
     }
 
     @Value

@@ -110,7 +110,7 @@ class PanacheMatchRepository
 
         );
 
-        publisher.publish("matches", event);
+        publisher.publish("new_matches", event);
     }
 
     @Override
