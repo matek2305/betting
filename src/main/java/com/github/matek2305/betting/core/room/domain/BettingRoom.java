@@ -5,6 +5,8 @@ import com.github.matek2305.betting.core.match.domain.IncomingMatch;
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchInformation;
 import com.github.matek2305.betting.core.match.domain.external.ExternalMatch;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent.AddIncomingMatchRejected;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent.IncomingMatchAdded;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 
@@ -22,16 +24,25 @@ public class BettingRoom {
     private final BettingRoomPolicy bettingRoomPolicy;
     private final DateProvider dateProvider;
 
-    Either<AddIncomingMatchRejected, ExternalMatch> add(AddExternalMatchCommand command) {
-        return add(new AddIncomingMatchCommand(
+    Either<AddIncomingMatchRejected, IncomingMatchAdded> add(AddExternalMatchCommand command) {
+        return create(command)
+                .map(match -> new ExternalMatch(match, command.origin(), command.externalId()))
+                .map(IncomingMatchAdded::new);
+    }
+
+    Either<AddIncomingMatchRejected, IncomingMatchAdded> add(AddIncomingMatchCommand command) {
+        return create(command).map(IncomingMatchAdded::new);
+    }
+
+    private Either<AddIncomingMatchRejected, IncomingMatch> create(AddExternalMatchCommand command) {
+        return create(new AddIncomingMatchCommand(
                 command.startDateTime(),
                 command.homeTeam(),
                 command.awayTeam()
-        ))
-                .map(match -> new ExternalMatch(match, command.origin(), command.externalId()));
+        ));
     }
 
-    Either<AddIncomingMatchRejected, IncomingMatch> add(AddIncomingMatchCommand command) {
+    private Either<AddIncomingMatchRejected, IncomingMatch> create(AddIncomingMatchCommand command) {
         if (!bettingRoomPolicy.check(command)) {
             return left(new AddIncomingMatchRejected(bettingRoomPolicy.getRuleDescription()));
         }

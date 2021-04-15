@@ -10,9 +10,10 @@ import com.github.matek2305.betting.core.match.domain.MatchRewardingPolicy;
 import com.github.matek2305.betting.core.match.domain.MatchRewards;
 import com.github.matek2305.betting.core.match.domain.MatchScore;
 import com.github.matek2305.betting.core.match.domain.Team;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent.IncomingMatchAdded;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import io.quarkus.arc.profile.IfBuildProfile;
-import io.quarkus.arc.properties.IfBuildProperty;
 import io.quarkus.runtime.Startup;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -35,7 +36,7 @@ import static com.github.matek2305.betting.core.match.domain.MatchBettingPolicy.
 @RequiredArgsConstructor
 class DevDataGenerator {
 
-    private static final String TEST_TEAM_NAMES[] = new String[]{
+    private static final String[] TEST_TEAM_NAMES = new String[]{
             "Chelsea",
             "Manchester United",
             "Arsenal",
@@ -86,7 +87,7 @@ class DevDataGenerator {
         var matchId = MatchId.of(UUID.randomUUID());
         var teams = generateTeams();
 
-        incomingMatches.save(new IncomingMatch(
+        var incomingMatch = new IncomingMatch(
                 new MatchInformation(
                         matchId,
                         startDateTime,
@@ -96,7 +97,8 @@ class DevDataGenerator {
                 bettingAllowedBeforeMatchStartOnly(dateProvider),
                 MatchRewardingPolicy.defaultRewards(),
                 afterMatchStarted(dateProvider)
-        ));
+        );
+        incomingMatches.publish(new IncomingMatchAdded(incomingMatch));
 
         return matchId;
     }

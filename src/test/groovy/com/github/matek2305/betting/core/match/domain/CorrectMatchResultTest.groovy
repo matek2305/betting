@@ -4,6 +4,7 @@ import com.github.matek2305.betting.commons.DateProvider
 import com.github.matek2305.betting.commons.DomainSpecification
 import com.github.matek2305.betting.core.match.RandomMatchFixtures
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent
 import spock.lang.Subject
 
 import java.time.ZonedDateTime
@@ -46,7 +47,7 @@ class CorrectMatchResultTest extends DomainSpecification implements RandomMatchF
 
     private MatchId createRandomIncomingMatch() {
         var incomingMatch = randomIncomingMatch(ZonedDateTime.now().minusHours(2), dateProviderMock)
-        matches.save(incomingMatch)
+        matches.publish(new AddIncomingMatchEvent.IncomingMatchAdded(incomingMatch))
         return incomingMatch.matchId()
     }
 

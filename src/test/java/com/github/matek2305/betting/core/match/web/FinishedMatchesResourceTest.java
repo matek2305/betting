@@ -2,6 +2,8 @@ package com.github.matek2305.betting.core.match.web;
 
 import com.github.matek2305.betting.core.match.RandomMatchFixtures;
 import com.github.matek2305.betting.core.match.domain.MatchId;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent.IncomingMatchAdded;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import com.github.matek2305.betting.commons.DateProvider;
 import io.quarkus.test.junit.QuarkusTest;
@@ -82,7 +84,7 @@ class FinishedMatchesResourceTest implements RandomMatchFixtures {
 
     private MatchId randomMatch(ZonedDateTime startDateTime) {
         var incomingMatch = randomIncomingMatch(startDateTime, dateProvider);
-        incomingMatches.save(incomingMatch);
+        incomingMatches.publish(new IncomingMatchAdded(incomingMatch));
         return incomingMatch.matchId();
     }
 }

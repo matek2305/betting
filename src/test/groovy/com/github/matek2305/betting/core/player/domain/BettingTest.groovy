@@ -7,6 +7,7 @@ import com.github.matek2305.betting.core.match.domain.MatchId
 import com.github.matek2305.betting.core.match.domain.MatchScore
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
 import com.github.matek2305.betting.core.player.infrastructure.InMemoryPlayers
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent
 import spock.lang.Subject
 
 import java.time.ZonedDateTime
@@ -99,7 +100,7 @@ class BettingTest extends DomainSpecification implements RandomMatchFixtures, Pl
 
     private MatchId createRandomIncomingMatch(ZonedDateTime startDateTime) {
         def incomingMatch = randomIncomingMatch(startDateTime, dateProviderMock)
-        matches.save(incomingMatch)
+        matches.publish(new AddIncomingMatchEvent.IncomingMatchAdded(incomingMatch))
         return incomingMatch.matchId()
     }
 }

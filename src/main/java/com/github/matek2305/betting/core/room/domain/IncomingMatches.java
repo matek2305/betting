@@ -9,9 +9,7 @@ import java.util.List;
 
 public interface IncomingMatches {
 
-    void save(IncomingMatch match);
-
-    void save(ExternalMatch externalMatch);
+    void publish(AddIncomingMatchEvent event);
 
     IncomingMatch getIncomingMatchBy(MatchId matchId);
 

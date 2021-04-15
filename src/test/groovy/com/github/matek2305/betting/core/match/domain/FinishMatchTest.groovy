@@ -4,6 +4,7 @@ import com.github.matek2305.betting.commons.CommandResult
 import com.github.matek2305.betting.commons.DomainSpecification
 import com.github.matek2305.betting.core.match.RandomMatchFixtures
 import com.github.matek2305.betting.core.match.infrastructure.InMemoryMatchRepository
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent
 import spock.lang.Subject
 
 import java.time.ZonedDateTime
@@ -80,7 +81,7 @@ class FinishMatchTest extends DomainSpecification implements RandomMatchFixtures
     
     private MatchId createRandomIncomingMatch(ZonedDateTime startDateTime) {
         var incomingMatch = randomIncomingMatch(startDateTime)
-        matches.save(incomingMatch)
+        matches.publish(new AddIncomingMatchEvent.IncomingMatchAdded(incomingMatch))
         return incomingMatch.matchId()
     }
 }

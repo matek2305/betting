@@ -12,6 +12,8 @@ import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchResultCorr
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
 import com.github.matek2305.betting.core.match.domain.external.ExternalMatch;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent.IncomingMatchAdded;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import io.vavr.API;
 import io.vavr.control.Option;
@@ -63,19 +65,22 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
                 Case($(instanceOf(MatchFinished.class)), this::finishMatch),
                 Case($(instanceOf(MatchResultCorrected.class)), this::correctMatchResult)
 
-        ).forEach(match -> matches.put(match.matchId(), match));
+        )
+                .forEach(match -> matches.put(match.matchId(), match));
 
         publisher.publish("matches", event);
     }
 
     @Override
-    public void save(IncomingMatch match) {
-        matches.put(match.matchId(), match);
-    }
+    public void publish(AddIncomingMatchEvent event) {
+        API.Match(event).option(
 
-    @Override
-    public void save(ExternalMatch match) {
-        matches.put(match.matchId(), match);
+                Case($(instanceOf(IncomingMatchAdded.class)), IncomingMatchAdded::match)
+
+        )
+                .forEach(newMatch -> matches.put(newMatch.matchId(), newMatch));
+
+        publisher.publish("matches", event);
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.github.matek2305.betting.core.player.web;
 
 import com.github.matek2305.betting.core.match.RandomMatchFixtures;
 import com.github.matek2305.betting.core.match.domain.MatchId;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent.IncomingMatchAdded;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
@@ -81,7 +83,7 @@ class PlayerBetsResourceTest implements RandomMatchFixtures {
         var incomingMatch = randomIncomingMatch(
                 ZonedDateTime.now().plusHours(1).plusMinutes(RandomUtils.nextInt(5, 30)));
 
-        incomingMatches.save(incomingMatch);
+        incomingMatches.publish(new IncomingMatchAdded(incomingMatch));
         return incomingMatch.matchId();
     }
 
@@ -89,7 +91,7 @@ class PlayerBetsResourceTest implements RandomMatchFixtures {
         var incomingMatch = randomIncomingMatch(
                 ZonedDateTime.now().minusMinutes(RandomUtils.nextInt(5, 30)));
 
-        incomingMatches.save(incomingMatch);
+        incomingMatches.publish(new IncomingMatchAdded(incomingMatch));
         return incomingMatch.matchId();
     }
 

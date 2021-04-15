@@ -12,8 +12,12 @@ import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchResultCorr
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchNotFoundException;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
+import com.github.matek2305.betting.core.match.domain.NewMatch;
 import com.github.matek2305.betting.core.match.domain.external.ExternalMatch;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent;
+import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent.IncomingMatchAdded;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.vavr.API;
 import io.vavr.control.Option;
@@ -98,21 +102,15 @@ class PanacheMatchRepository
 
     @Override
     @Transactional
-    public void save(ExternalMatch match) {
-        var matchEntity = createMatchEntity(match.match());
-        persist(matchEntity);
+    public void publish(AddIncomingMatchEvent event) {
+        API.Match(event).option(
 
-        var externalMatchEntity = new ExternalMatchEntity();
-        externalMatchEntity.matchEntity = matchEntity;
-        externalMatchEntity.origin = match.origin().name();
-        externalMatchEntity.externalId = match.externalId().id();
-        externalMatchEntity.persist();
-    }
+                Case($(instanceOf(IncomingMatchAdded.class)),
+                        added -> run(() -> save(added.match())))
 
-    @Override
-    @Transactional
-    public void save(IncomingMatch match) {
-        persist(createMatchEntity(match));
+        );
+
+        publisher.publish("matches", event);
     }
 
     @Override
@@ -139,6 +137,28 @@ class PanacheMatchRepository
     private MatchEntity getEntityBy(MatchId matchId) {
         return find("uuid", matchId.id()).firstResultOptional()
                 .orElseThrow(() -> new MatchNotFoundException(matchId));
+    }
+
+    private void save(NewMatch match) {
+        var matchEntity = API.Match(match).of(
+                Case($(instanceOf(IncomingMatch.class)), this::createMatchEntity),
+                Case($(instanceOf(ExternalMatch.class)), externalMatch -> createMatchEntity(externalMatch.match()))
+        );
+
+        persist(matchEntity);
+
+        API.Match(match).option(
+
+                Case($(instanceOf(ExternalMatch.class)), externalMatch -> {
+                    var externalMatchEntity = new ExternalMatchEntity();
+                    externalMatchEntity.matchEntity = matchEntity;
+                    externalMatchEntity.origin = externalMatch.origin().name();
+                    externalMatchEntity.externalId = externalMatch.externalId().id();
+                    return externalMatchEntity;
+                })
+
+        )
+                .forEach(externalMatchEntity -> externalMatchEntity.persist());
     }
 
     private MatchEntity createMatchEntity(IncomingMatch match) {

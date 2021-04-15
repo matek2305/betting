@@ -11,7 +11,7 @@ import static io.vavr.control.Either.right;
 
 @Getter
 @RequiredArgsConstructor
-public final class IncomingMatch implements Match {
+public final class IncomingMatch implements NewMatch {
 
     private final MatchInformation matchInformation;
     private final MatchBettingPolicy bettingPolicy;
