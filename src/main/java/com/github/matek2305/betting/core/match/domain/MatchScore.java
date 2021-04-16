@@ -4,18 +4,18 @@ import lombok.Value;
 
 @Value(staticConstructor = "of")
 public class MatchScore {
-    int homeTeamScore;
-    int awayTeamScore;
+    int homeTeam;
+    int awayTeam;
 
     public boolean homeTeamWon() {
-        return homeTeamScore > awayTeamScore;
+        return homeTeam > awayTeam;
     }
 
     public boolean awayTeamWon() {
-        return awayTeamScore > homeTeamScore;
+        return awayTeam > homeTeam;
     }
 
     public boolean draw() {
-        return homeTeamScore == awayTeamScore;
+        return homeTeam == awayTeam;
     }
 }

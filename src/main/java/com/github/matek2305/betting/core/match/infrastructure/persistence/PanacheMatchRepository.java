@@ -17,7 +17,6 @@ import com.github.matek2305.betting.core.match.domain.external.ExternalMatch;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent.IncomingMatchAdded;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.vavr.API;
 import io.vavr.control.Option;
@@ -74,15 +73,15 @@ class PanacheMatchRepository
     private Void finishMatch(MatchFinished matchFinished) {
         var entity = getEntityBy(matchFinished.matchId());
         entity.finished = true;
-        entity.homeTeamScore = matchFinished.result().homeTeamScore();
-        entity.awayTeamScore = matchFinished.result().awayTeamScore();
+        entity.homeTeamScore = matchFinished.result().homeTeam();
+        entity.awayTeamScore = matchFinished.result().awayTeam();
         return run(() -> persist(entity));
     }
 
     private Void correctMatchResult(MatchResultCorrected resultCorrected) {
         var entity = getEntityBy(resultCorrected.matchId());
-        entity.homeTeamScore = resultCorrected.result().homeTeamScore();
-        entity.awayTeamScore = resultCorrected.result().awayTeamScore();
+        entity.homeTeamScore = resultCorrected.result().homeTeam();
+        entity.awayTeamScore = resultCorrected.result().awayTeam();
         return run(() -> persist(entity));
     }
 

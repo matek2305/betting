@@ -1,9 +1,10 @@
 package com.github.matek2305.betting.core;
 
+import com.github.matek2305.betting.PostgresResource;
 import com.github.matek2305.betting.commons.CommandResult;
+import com.github.matek2305.betting.commons.DateProvider;
 import com.github.matek2305.betting.core.match.domain.FinishMatch;
 import com.github.matek2305.betting.core.match.domain.FinishMatchCommand;
-import com.github.matek2305.betting.core.match.domain.IncomingMatch;
 import com.github.matek2305.betting.core.match.domain.Match;
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchScore;
@@ -17,9 +18,7 @@ import com.github.matek2305.betting.core.player.domain.Points;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
-import com.github.matek2305.betting.commons.DateProvider;
 import io.quarkus.test.common.QuarkusTestResource;
-import io.quarkus.test.h2.H2DatabaseTestResource;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.vavr.control.Option;
@@ -29,7 +28,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
-
 import java.time.ZonedDateTime;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +39,7 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @Tag("integration")
-@QuarkusTestResource(H2DatabaseTestResource.class)
+@QuarkusTestResource(PostgresResource.class)
 class BetPointsCalculationTest {
 
     @Inject

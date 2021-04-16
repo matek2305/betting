@@ -81,6 +81,6 @@ public class PlayersResource {
     }
 
     private static PlayerResponse.Score toScore(MatchScore score) {
-        return new PlayerResponse.Score(score.homeTeamScore(), score.awayTeamScore());
+        return new PlayerResponse.Score(score.homeTeam(), score.awayTeam());
     }
 }

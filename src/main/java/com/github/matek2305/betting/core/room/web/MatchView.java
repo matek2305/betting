@@ -11,7 +11,7 @@ public class MatchView {
     String homeTeamName;
     String awayTeamName;
     ZonedDateTime when;
-    Bet bet;
+    PlayerBet bet;
 
     static MatchView noBet(
             UUID matchId,
@@ -23,7 +23,7 @@ public class MatchView {
     }
 
     @Value
-    public static class Bet {
+    public static class PlayerBet {
         int homeTeam;
         int awayTeam;
     }

@@ -6,16 +6,15 @@ import com.github.matek2305.betting.core.match.domain.Match;
 import com.github.matek2305.betting.core.match.domain.Team;
 import com.github.matek2305.betting.core.match.domain.external.ExternalId;
 import com.github.matek2305.betting.core.match.domain.external.Origin;
-import com.github.matek2305.betting.core.player.domain.PlayerId;
 import com.github.matek2305.betting.core.room.domain.AddExternalMatchCommand;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import com.github.matek2305.betting.core.room.readmodel.IncomingMatchesReadModel;
-import com.github.matek2305.betting.core.room.readmodel.IncomingMatchesReadModelEntry;
+import com.github.matek2305.betting.core.room.readmodel.IncomingMatchesReadModelEntity;
+import com.github.matek2305.betting.core.room.web.MatchView.PlayerBet;
 import io.quarkus.security.Authenticated;
 import io.vavr.API;
-import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +29,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -63,7 +61,8 @@ public class BettingRoomsResource {
     @Path("/global/next_matches")
     @Produces(MediaType.APPLICATION_JSON)
     public List<MatchView> getNext(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
-        return StreamSupport.stream(incomingMatchesReadModel.findNext(howMany).spliterator(), false)
+        return incomingMatchesReadModel.findNext(howMany)
+                .stream()
                 .map(this::viewOf)
                 .collect(Collectors.toList());
     }
@@ -100,21 +99,19 @@ public class BettingRoomsResource {
                 Team.of(request.awayTeamName()));
     }
 
-    private MatchView viewOf(IncomingMatchesReadModelEntry readModelEntry) {
-        var loggedPlayerBet = Option.of(readModelEntry
-                .betsByPlayerId()
-                .get(PlayerId.of(loggedUser.getName())));
-
+    private MatchView viewOf(IncomingMatchesReadModelEntity entity) {
         return new MatchView(
-                readModelEntry.matchId().id(),
-                readModelEntry.homeTeam().name(),
-                readModelEntry.awayTeam().name(),
-                readModelEntry.when(),
-                loggedPlayerBet
-                        .map(bet -> new MatchView.Bet(
-                                bet.homeTeamScore(),
-                                bet.awayTeamScore()))
-                        .getOrNull()
+                entity.matchId(),
+                entity.homeTeamName(),
+                entity.awayTeamName(),
+                entity.when(),
+                entity.bets().stream()
+                        .filter(bet -> bet.playerId().equals(loggedUser.getName()))
+                        .findFirst()
+                        .map(bet -> new PlayerBet(
+                                bet.score().homeTeam(),
+                                bet.score().awayTeam()))
+                        .orElse(null)
         );
     }
 
