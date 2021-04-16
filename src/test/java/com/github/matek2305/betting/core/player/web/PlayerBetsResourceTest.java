@@ -2,7 +2,6 @@ package com.github.matek2305.betting.core.player.web;
 
 import com.github.matek2305.betting.core.match.RandomMatchFixtures;
 import com.github.matek2305.betting.core.match.domain.MatchId;
-import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent.IncomingMatchAdded;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import io.quarkus.test.junit.QuarkusTest;
@@ -15,6 +14,11 @@ import org.junit.jupiter.api.Test;
 import javax.inject.Inject;
 import java.time.ZonedDateTime;
 
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+
 @QuarkusTest
 @Tag("integration")
 class PlayerBetsResourceTest implements RandomMatchFixtures {
@@ -23,39 +27,51 @@ class PlayerBetsResourceTest implements RandomMatchFixtures {
     IncomingMatches incomingMatches;
 
     @Test
-    void should_return_201_CREATED_when_bet_is_successful() {
+    void should_return_200_OK_when_all_bets_are_successful() {
         var matchId = randomMatchStartingInMoreThanOneHour();
+        var anotherMatchId = randomMatchStartingInMoreThanOneHour();
 
         RestAssured
                 .given()
                     .contentType(ContentType.JSON)
-                    .body("{ \"matchId\": \"" + matchId.id() + "\", \"homeTeamScore\": 1, \"awayTeamScore\": 1 }")
+                    .body("{ \"bets\": [ " +
+                            "{ \"matchId\": \"" + matchId.id() + "\", \"homeTeamScore\": 1, \"awayTeamScore\": 1 }, " +
+                            "{ \"matchId\": \"" + anotherMatchId.id() + "\", \"homeTeamScore\": 2, \"awayTeamScore\": 1 } " +
+                            "] }")
 
                 .when()
                     .post("/player_bets")
 
                 .then()
                     .assertThat()
-                    .statusCode(201)
+                    .statusCode(200)
+                    .body("rejections.size()", is(0))
                     .log()
                     .all();
     }
 
     @Test
-    void should_return_400_BAD_REQUEST_when_bet_is_rejected() {
-        var matchId = randomAlreadyStartedMatch();
+    void should_return_200_OK_with_rejections_info_when_at_least_one_bet_is_rejected() {
+        var matchIdAllowedForBetting = randomMatchStartingInMoreThanOneHour();
+        var matchIdNotAllowedForBetting = randomAlreadyStartedMatch();
 
         RestAssured
                 .given()
                     .contentType(ContentType.JSON)
-                    .body("{ \"matchId\": \"" + matchId.id() + "\", \"homeTeamScore\": 1, \"awayTeamScore\": 1 }")
+                    .body("{ \"bets\": [ " +
+                            "{ \"matchId\": \"" + matchIdAllowedForBetting.id() + "\", \"homeTeamScore\": 1, \"awayTeamScore\": 1 }, " +
+                            "{ \"matchId\": \"" + matchIdNotAllowedForBetting.id() + "\", \"homeTeamScore\": 1, \"awayTeamScore\": 1 } " +
+                            "] }")
 
                 .when()
                     .post("/player_bets")
 
                 .then()
                     .assertThat()
-                    .statusCode(400)
+                    .statusCode(200)
+                    .body("rejections.size()", is(1))
+                    .body("rejections[0].matchId", equalTo(matchIdNotAllowedForBetting.id().toString()))
+                    .body("rejections[0].error", is(not(emptyString())))
                     .log()
                     .all();
     }
@@ -67,7 +83,7 @@ class PlayerBetsResourceTest implements RandomMatchFixtures {
         RestAssured
                 .given()
                     .contentType(ContentType.JSON)
-                    .body("{ \"matchId\": \"" + matchId.id() + "\", \"homeTeamScore\": 1, \"awayTeamScore\": 1 }")
+                    .body("{ \"bets\": [ { \"matchId\": \"" + matchId.id() + "\", \"homeTeamScore\": 1, \"awayTeamScore\": 1 } ] }")
 
                 .when()
                     .post("/player_bets")

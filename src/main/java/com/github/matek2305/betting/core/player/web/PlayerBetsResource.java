@@ -7,6 +7,8 @@ import com.github.matek2305.betting.core.match.domain.MatchScore;
 import com.github.matek2305.betting.core.player.domain.Betting;
 import com.github.matek2305.betting.core.player.domain.MakeBetCommand;
 import com.github.matek2305.betting.core.player.domain.PlayerId;
+import com.github.matek2305.betting.core.player.web.AddPlayerBetsRejectionsResponse.BetRejection;
+import com.github.matek2305.betting.core.player.web.AddPlayerBetsRequest.SingleMatchBetRequest;
 import io.quarkus.security.Authenticated;
 import io.vavr.API;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +19,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
+import static io.vavr.API.run;
 import static io.vavr.Predicates.instanceOf;
 
 @Authenticated
@@ -31,27 +37,32 @@ public class PlayerBetsResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response add(AddPlayerBetRequest request) {
-        return API.Match(betting.makeBet(toMakeBetCommand(request))).of(
-                Case($(instanceOf(CommandResult.Allowed.class)), this::created),
-                Case($(instanceOf(CommandResult.Rejected.class)), this::badRequest));
+    public Response add(AddPlayerBetsRequest request) {
+        Set<BetRejection> rejections = new HashSet<>();
+
+        request.bets().forEach(betRequest ->
+                API.Match(betting.makeBet(toMakeBetCommand(betRequest))).option(
+
+                        Case($(instanceOf(CommandResult.Rejected.class)), rejected ->
+                                run(() -> rejections.add(rejection(betRequest, rejected))))
+
+                )
+        );
+
+        return Response.ok(new AddPlayerBetsRejectionsResponse(rejections)).build();
     }
 
-    private MakeBetCommand toMakeBetCommand(AddPlayerBetRequest request) {
+    private MakeBetCommand toMakeBetCommand(SingleMatchBetRequest request) {
         return new MakeBetCommand(
                 PlayerId.of(loggedUser.getName()),
                 MatchId.of(request.matchId()),
                 MatchScore.of(request.homeTeamScore(), request.awayTeamScore()));
     }
 
-    private Response created() {
-        return Response.status(Response.Status.CREATED).build();
-    }
-
-    private Response badRequest(CommandResult.Rejected rejected) {
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity(rejected.rejectionReason())
-                .build();
+    private BetRejection rejection(SingleMatchBetRequest betRequest, CommandResult.Rejected rejected) {
+        return new BetRejection(
+                betRequest.matchId(),
+                rejected.rejectionReason()
+        );
     }
 }
