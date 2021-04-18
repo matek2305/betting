@@ -4,6 +4,7 @@ import com.github.matek2305.betting.core.match.domain.MatchScore;
 import io.quarkiverse.hibernate.types.json.JsonBinaryType;
 import io.quarkiverse.hibernate.types.json.JsonType;
 import io.quarkiverse.hibernate.types.json.JsonTypes;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;
 import lombok.Value;
 import org.hibernate.annotations.Type;
@@ -35,6 +36,7 @@ public class IncomingMatchesReadModelEntity {
     private List<Bet> bets = new ArrayList<>();
 
     @Value
+    @RegisterForReflection
     public static class Bet {
         String playerId;
         MatchScore score;
