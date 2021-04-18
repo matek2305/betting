@@ -36,7 +36,7 @@ public class IncomingMatchesReadModelEntity {
     private List<Bet> bets = new ArrayList<>();
 
     @Value
-    @RegisterForReflection
+    @RegisterForReflection(targets = {Bet.class, MatchScore.class})
     public static class Bet {
         String playerId;
         MatchScore score;
