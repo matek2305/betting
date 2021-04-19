@@ -13,7 +13,7 @@ class LoggedUserConfiguration {
     @Produces
     @IfBuildProperty(name = "betting.auth.enabled", stringValue = "true", enableIfMissing = true)
     public LoggedUser loggedUser(JsonWebToken jwt) {
-        return jwt::getName;
+        return () -> ((String) jwt.getClaim("email")).split("@")[0];
     }
 
     @Produces

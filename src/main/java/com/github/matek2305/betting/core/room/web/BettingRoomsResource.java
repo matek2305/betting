@@ -2,17 +2,13 @@ package com.github.matek2305.betting.core.room.web;
 
 import com.github.matek2305.betting.commons.CommandResult;
 import com.github.matek2305.betting.commons.LoggedUser;
-import com.github.matek2305.betting.core.match.domain.Match;
 import com.github.matek2305.betting.core.match.domain.Team;
 import com.github.matek2305.betting.core.match.domain.external.ExternalId;
 import com.github.matek2305.betting.core.match.domain.external.Origin;
 import com.github.matek2305.betting.core.room.domain.AddExternalMatchCommand;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand;
-import com.github.matek2305.betting.core.room.domain.IncomingMatches;
 import com.github.matek2305.betting.core.room.readmodel.IncomingMatchesReadModel;
-import com.github.matek2305.betting.core.room.readmodel.IncomingMatchesReadModelEntity;
-import com.github.matek2305.betting.core.room.web.MatchView.PlayerBet;
 import io.quarkus.security.Authenticated;
 import io.vavr.API;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +26,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.github.matek2305.betting.core.room.web.MatchView.withHiddenBets;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.Predicates.instanceOf;
@@ -42,8 +39,6 @@ public class BettingRoomsResource {
     private static final String DEFAULT_NEXT_MATCHES_LIMIT = "10";
 
     private final AddIncomingMatch addIncomingMatch;
-    private final IncomingMatches incomingMatches;
-
     private final IncomingMatchesReadModel incomingMatchesReadModel;
     private final LoggedUser loggedUser;
 
@@ -61,9 +56,9 @@ public class BettingRoomsResource {
     @Path("/global/next_matches")
     @Produces(MediaType.APPLICATION_JSON)
     public List<MatchView> getNext(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
-        return incomingMatchesReadModel.findNext(howMany)
+        return incomingMatchesReadModel.findForBetting(howMany)
                 .stream()
-                .map(this::viewOf)
+                .map(entity -> withHiddenBets(entity, loggedUser.getName()))
                 .collect(Collectors.toList());
     }
 
@@ -71,9 +66,9 @@ public class BettingRoomsResource {
     @Path("/global/started_matches")
     @Produces(MediaType.APPLICATION_JSON)
     public List<MatchView> getStarted(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
-        return incomingMatches.findStarted(howMany)
+        return incomingMatchesReadModel.findStarted(howMany)
                 .stream()
-                .map(this::viewOf)
+                .map(MatchView::withAllBets)
                 .collect(Collectors.toList());
     }
 
@@ -97,31 +92,6 @@ public class BettingRoomsResource {
                 request.startDateTime(),
                 Team.of(request.homeTeamName()),
                 Team.of(request.awayTeamName()));
-    }
-
-    private MatchView viewOf(IncomingMatchesReadModelEntity entity) {
-        return new MatchView(
-                entity.matchId(),
-                entity.homeTeamName(),
-                entity.awayTeamName(),
-                entity.when(),
-                entity.bets().stream()
-                        .filter(bet -> bet.playerId().equals(loggedUser.getName()))
-                        .findFirst()
-                        .map(bet -> new PlayerBet(
-                                bet.score().homeTeam(),
-                                bet.score().awayTeam()))
-                        .orElse(null)
-        );
-    }
-
-    private MatchView viewOf(Match match) {
-        return MatchView.noBet(
-                match.matchId().id(),
-                match.homeTeamName(),
-                match.awayTeamName(),
-                match.startDateTime()
-        );
     }
 
     private Response created() {

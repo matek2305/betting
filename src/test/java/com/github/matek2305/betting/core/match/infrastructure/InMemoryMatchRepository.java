@@ -11,7 +11,6 @@ import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinished;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchResultCorrected;
 import com.github.matek2305.betting.core.match.domain.MatchId;
 import com.github.matek2305.betting.core.match.domain.MatchRepository;
-import com.github.matek2305.betting.core.match.domain.external.ExternalMatch;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent.IncomingMatchAdded;
 import com.github.matek2305.betting.core.room.domain.IncomingMatches;
@@ -105,24 +104,20 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
 
     @Override
     public List<Match> findNext(int howMany) {
-        return findBy(started().negate(), howMany);
+        return findBy(notStarted(), howMany);
     }
 
-    @Override
-    public List<Match> findStarted(int howMany) {
-        return findBy(started(), howMany);
-    }
-
-    private List<Match> findBy(Predicate<Match> predicate, int howMany) {
+    private List<Match> findBy(Predicate<Match> filter, int howMany) {
         return matches.values()
                 .stream()
+                .filter(filter)
                 .sorted(BY_START_DATE_TIME_FROM_CLOSEST)
                 .limit(howMany)
                 .collect(Collectors.toList());
     }
 
-    private Predicate<Match> started() {
-        return match -> dateProvider.getCurrentDateTime().isAfter(match.startDateTime());
+    private Predicate<Match> notStarted() {
+        return match -> dateProvider.getCurrentDateTime().isBefore(match.startDateTime());
     }
 
     private FinishedMatch finishMatch(MatchFinished matchFinished) {

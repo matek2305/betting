@@ -30,6 +30,8 @@ public class IncomingMatchesReadModelEntity {
     private String awayTeamName;
     @Column(name = "start_date_time")
     private ZonedDateTime when;
+    @Column(name = "betting_available_until")
+    private ZonedDateTime bettingAvailableUntil;
 
     @Type(type = JsonTypes.JSON_BIN)
     @Column(columnDefinition = JsonTypes.JSON_BIN)

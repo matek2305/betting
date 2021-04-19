@@ -125,14 +125,6 @@ class PanacheMatchRepository
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<Match> findStarted(int howMany) {
-        return list("startDateTime < ?1 and finished = false order by startDateTime", dateProvider.getCurrentDateTime())
-                .stream()
-                .map(factory::create)
-                .collect(Collectors.toList());
-    }
-
     private MatchEntity getEntityBy(MatchId matchId) {
         return find("uuid", matchId.id()).firstResultOptional()
                 .orElseThrow(() -> new MatchNotFoundException(matchId));

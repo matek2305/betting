@@ -6,6 +6,8 @@ import io.vavr.control.Either;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.time.ZonedDateTime;
+
 import static io.vavr.control.Either.left;
 import static io.vavr.control.Either.right;
 
@@ -17,6 +19,11 @@ public final class IncomingMatch implements NewMatch {
     private final MatchBettingPolicy bettingPolicy;
     private final MatchRewardingPolicy rewardingPolicy;
     private final FinishMatchPolicy finishMatchPolicy;
+
+    @Override
+    public ZonedDateTime bettingAvailableUntil() {
+        return bettingPolicy.calculateMarginDate(this);
+    }
 
     public boolean isBettingAllowed() {
         return bettingPolicy.playerCanBet(this);

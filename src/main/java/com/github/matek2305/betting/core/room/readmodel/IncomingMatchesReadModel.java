@@ -1,5 +1,6 @@
 package com.github.matek2305.betting.core.room.readmodel;
 
+import com.github.matek2305.betting.commons.DateProvider;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinished;
 import com.github.matek2305.betting.core.player.domain.PlayerEvent.PlayerBetMade;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent.IncomingMatchAdded;
@@ -17,10 +18,28 @@ import java.util.List;
 public class IncomingMatchesReadModel {
 
     private final EntityManager entityManager;
+    private final DateProvider dateProvider;
 
-    public List<IncomingMatchesReadModelEntity> findNext(int howMany) {
+    public List<IncomingMatchesReadModelEntity> findForBetting(int howMany) {
         return entityManager
-                .createQuery("select m from IncomingMatchesReadModelEntity m order by m.when", IncomingMatchesReadModelEntity.class)
+                .createQuery("" +
+                        "select m " +
+                        "from IncomingMatchesReadModelEntity m " +
+                        "where :currentDate < m.bettingAvailableUntil " +
+                        "order by m.when", IncomingMatchesReadModelEntity.class)
+                .setParameter("currentDate", dateProvider.getCurrentDateTime())
+                .setMaxResults(howMany)
+                .getResultList();
+    }
+
+    public List<IncomingMatchesReadModelEntity> findStarted(int howMany) {
+        return entityManager
+                .createQuery("" +
+                        "select m " +
+                        "from IncomingMatchesReadModelEntity m " +
+                        "where :currentDate > m.bettingAvailableUntil " +
+                        "order by m.when", IncomingMatchesReadModelEntity.class)
+                .setParameter("currentDate", dateProvider.getCurrentDateTime())
                 .setMaxResults(howMany)
                 .getResultList();
     }
@@ -33,6 +52,7 @@ public class IncomingMatchesReadModel {
         entity.homeTeamName(matchAdded.match().homeTeamName());
         entity.awayTeamName(matchAdded.match().awayTeamName());
         entity.when(matchAdded.match().startDateTime());
+        entity.bettingAvailableUntil(matchAdded.match().bettingAvailableUntil());
         entityManager.persist(entity);
     }
 
@@ -50,7 +70,7 @@ public class IncomingMatchesReadModel {
     public void handle(MatchFinished matchFinished) {
         entityManager
                 .createQuery("delete from IncomingMatchesReadModelEntity m where m.matchId = :matchId")
-                .setParameter("matchId", matchFinished.matchId())
+                .setParameter("matchId", matchFinished.matchId().id())
                 .executeUpdate();
     }
 }
