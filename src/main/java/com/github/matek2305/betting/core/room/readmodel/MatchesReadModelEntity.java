@@ -7,6 +7,7 @@ import io.quarkiverse.hibernate.types.json.JsonTypes;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;
 import lombok.Value;
+import lombok.With;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -22,7 +23,7 @@ import java.util.UUID;
 @Data
 @TypeDef(name = JsonTypes.JSON, typeClass = JsonType.class)
 @TypeDef(name = JsonTypes.JSON_BIN, typeClass = JsonBinaryType.class)
-public class IncomingMatchesReadModelEntity {
+public class MatchesReadModelEntity {
 
     @Id
     private UUID matchId;
@@ -37,10 +38,23 @@ public class IncomingMatchesReadModelEntity {
     @Column(columnDefinition = JsonTypes.JSON_BIN)
     private List<Bet> bets = new ArrayList<>();
 
+    private boolean finished = false;
+
+    @Type(type = JsonTypes.JSON_BIN)
+    @Column(columnDefinition = JsonTypes.JSON_BIN)
+    private MatchScore result;
+
     @Value
     @RegisterForReflection(targets = {Bet.class, MatchScore.class})
     public static class Bet {
         String playerId;
         MatchScore score;
+
+        @With
+        int receivedPoints;
+
+        public static Bet pending(String playerId, MatchScore bet) {
+            return new Bet(playerId, bet, 0);
+        }
     }
 }

@@ -10,6 +10,8 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import java.time.ZonedDateTime;
 
+import static com.github.matek2305.betting.commons.EventsPublisher.explicitPublish;
+
 @Dependent
 @RequiredArgsConstructor
 class CommonContextConfiguration {
@@ -24,6 +26,6 @@ class CommonContextConfiguration {
 
     @Produces
     public EventsPublisher eventsPublisher() {
-        return EventsPublisher.explicitPublish(eventBus::publish);
+        return explicitPublish(event -> eventBus.publish(event.address().value(), event));
     }
 }

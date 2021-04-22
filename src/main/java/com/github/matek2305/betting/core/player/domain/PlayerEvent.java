@@ -13,10 +13,18 @@ public interface PlayerEvent extends PublishableEvent {
 
     @Value
     class PlayerBetMade implements PlayerEvent {
+
+        public static final String ADDRESS = "bets";
+
         UUID eventId = UUID.randomUUID();
         PlayerId playerId;
         MatchId matchId;
         MatchScore bet;
+
+        @Override
+        public PublishAddress address() {
+            return PublishAddress.of(ADDRESS);
+        }
 
         @Override
         public boolean shouldPublish() {
@@ -34,9 +42,22 @@ public interface PlayerEvent extends PublishableEvent {
 
     @Value
     class PointsRewarded implements PlayerEvent {
+
+        public static final String ADDRESS = "points";
+
         UUID eventId = UUID.randomUUID();
         PlayerId playerId;
         MatchId matchId;
         Points points;
+
+        @Override
+        public PublishAddress address() {
+            return PublishAddress.of(ADDRESS);
+        }
+
+        @Override
+        public boolean shouldPublish() {
+            return true;
+        }
     }
 }

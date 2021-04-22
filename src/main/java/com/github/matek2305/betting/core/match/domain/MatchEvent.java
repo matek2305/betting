@@ -11,10 +11,18 @@ public interface MatchEvent extends PublishableEvent {
 
     @Value
     class MatchFinished implements MatchEvent {
+
+        public static final String ADDRESS = "match_results";
+
         UUID eventId = UUID.randomUUID();
         MatchId matchId;
         MatchScore result;
         MatchRewards rewards;
+
+        @Override
+        public PublishAddress address() {
+            return PublishAddress.of(ADDRESS);
+        }
 
         @Override
         public boolean shouldPublish() {

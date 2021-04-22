@@ -67,7 +67,7 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
         )
                 .forEach(match -> matches.put(match.matchId(), match));
 
-        publisher.publish("matches", event);
+        publisher.publish(event);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class InMemoryMatchRepository implements MatchRepository, IncomingMatches
         )
                 .forEach(newMatch -> matches.put(newMatch.matchId(), newMatch));
 
-        publisher.publish("new_matches", event);
+        publisher.publish(event);
     }
 
     @Override

@@ -14,7 +14,7 @@ class MatchFinishedEventHandler {
 
     private final RewardPlayers rewardPlayers;
 
-    @ConsumeEvent(value = "matches")
+    @ConsumeEvent(value = MatchFinished.ADDRESS)
     public void handle(MatchFinished matchFinished) {
         rewardPlayers.give(toCommand(matchFinished));
     }

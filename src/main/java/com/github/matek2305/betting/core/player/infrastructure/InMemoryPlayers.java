@@ -57,7 +57,7 @@ public class InMemoryPlayers implements Players {
 
         ).forEach(player -> players.put(player.playerId(), player));
 
-        publisher.publish("players", event);
+        publisher.publish(event);
     }
 
     private Player savePlayerBet(PlayerBetMade playerBetMade) {

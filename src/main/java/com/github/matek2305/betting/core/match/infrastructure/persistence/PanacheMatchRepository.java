@@ -67,7 +67,7 @@ class PanacheMatchRepository
 
         );
 
-        publisher.publish("matches", event);
+        publisher.publish(event);
     }
 
     private Void finishMatch(MatchFinished matchFinished) {
@@ -109,7 +109,7 @@ class PanacheMatchRepository
 
         );
 
-        publisher.publish("new_matches", event);
+        publisher.publish(event);
     }
 
     @Override

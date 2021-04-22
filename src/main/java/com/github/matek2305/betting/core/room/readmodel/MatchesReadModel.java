@@ -3,8 +3,9 @@ package com.github.matek2305.betting.core.room.readmodel;
 import com.github.matek2305.betting.commons.DateProvider;
 import com.github.matek2305.betting.core.match.domain.MatchEvent.MatchFinished;
 import com.github.matek2305.betting.core.player.domain.PlayerEvent.PlayerBetMade;
+import com.github.matek2305.betting.core.player.domain.PlayerEvent.PointsRewarded;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchEvent.IncomingMatchAdded;
-import com.github.matek2305.betting.core.room.readmodel.IncomingMatchesReadModelEntity.Bet;
+import com.github.matek2305.betting.core.room.readmodel.MatchesReadModelEntity.Bet;
 import io.quarkus.vertx.ConsumeEvent;
 import lombok.RequiredArgsConstructor;
 
@@ -12,42 +13,43 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 @RequiredArgsConstructor
-public class IncomingMatchesReadModel {
+public class MatchesReadModel {
 
     private final EntityManager entityManager;
     private final DateProvider dateProvider;
 
-    public List<IncomingMatchesReadModelEntity> findForBetting(int howMany) {
+    public List<MatchesReadModelEntity> findForBetting(int howMany) {
         return entityManager
                 .createQuery("" +
                         "select m " +
-                        "from IncomingMatchesReadModelEntity m " +
-                        "where :currentDate < m.bettingAvailableUntil " +
-                        "order by m.when", IncomingMatchesReadModelEntity.class)
+                        "from MatchesReadModelEntity m " +
+                        "where :currentDate < m.bettingAvailableUntil and m.finished = false " +
+                        "order by m.when", MatchesReadModelEntity.class)
                 .setParameter("currentDate", dateProvider.getCurrentDateTime())
                 .setMaxResults(howMany)
                 .getResultList();
     }
 
-    public List<IncomingMatchesReadModelEntity> findStarted(int howMany) {
+    public List<MatchesReadModelEntity> findStarted(int howMany) {
         return entityManager
                 .createQuery("" +
                         "select m " +
-                        "from IncomingMatchesReadModelEntity m " +
+                        "from MatchesReadModelEntity m " +
                         "where :currentDate > m.bettingAvailableUntil " +
-                        "order by m.when", IncomingMatchesReadModelEntity.class)
+                        "order by m.when", MatchesReadModelEntity.class)
                 .setParameter("currentDate", dateProvider.getCurrentDateTime())
                 .setMaxResults(howMany)
                 .getResultList();
     }
 
     @Transactional
-    @ConsumeEvent(value = "new_matches", blocking = true)
+    @ConsumeEvent(value = IncomingMatchAdded.ADDRESS, blocking = true)
     public void handle(IncomingMatchAdded matchAdded) {
-        var entity = new IncomingMatchesReadModelEntity();
+        var entity = new MatchesReadModelEntity();
         entity.matchId(matchAdded.match().matchId().id());
         entity.homeTeamName(matchAdded.match().homeTeamName());
         entity.awayTeamName(matchAdded.match().awayTeamName());
@@ -57,20 +59,34 @@ public class IncomingMatchesReadModel {
     }
 
     @Transactional
-    @ConsumeEvent(value = "players", blocking = true)
+    @ConsumeEvent(value = PlayerBetMade.ADDRESS, blocking = true)
     public void handle(PlayerBetMade betMade) {
-        var entity = entityManager.find(IncomingMatchesReadModelEntity.class, betMade.matchId().id());
+        var entity = entityManager.find(MatchesReadModelEntity.class, betMade.matchId().id());
         entity.bets().removeIf(bet -> bet.playerId().equals(betMade.playerId().id()));
-        entity.bets().add(new Bet(betMade.playerId().id(), betMade.bet()));
+        entity.bets().add(Bet.pending(betMade.playerId().id(), betMade.bet()));
         entityManager.persist(entity);
     }
 
     @Transactional
-    @ConsumeEvent(value = "matches", blocking = true)
+    @ConsumeEvent(value = MatchFinished.ADDRESS, blocking = true)
     public void handle(MatchFinished matchFinished) {
-        entityManager
-                .createQuery("delete from IncomingMatchesReadModelEntity m where m.matchId = :matchId")
-                .setParameter("matchId", matchFinished.matchId().id())
-                .executeUpdate();
+        var entity = entityManager.find(MatchesReadModelEntity.class, matchFinished.matchId().id());
+        entity.finished(true);
+        entity.result(matchFinished.result());
+        entityManager.persist(entity);
+    }
+
+    @Transactional
+    @ConsumeEvent(value = PointsRewarded.ADDRESS, blocking = true)
+    public void handle(PointsRewarded pointsRewarded) {
+        var entity = entityManager.find(MatchesReadModelEntity.class, pointsRewarded.matchId().id());
+        var bets = entity.bets()
+                .stream()
+                .map(bet -> bet.playerId().equals(pointsRewarded.playerId().id())
+                        ? bet.withReceivedPoints(pointsRewarded.points().points())
+                        : bet
+                ).collect(Collectors.toList());
+        entity.bets(bets);
+        entityManager.persist(entity);
     }
 }

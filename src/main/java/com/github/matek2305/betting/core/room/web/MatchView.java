@@ -1,6 +1,6 @@
 package com.github.matek2305.betting.core.room.web;
 
-import com.github.matek2305.betting.core.room.readmodel.IncomingMatchesReadModelEntity;
+import com.github.matek2305.betting.core.room.readmodel.MatchesReadModelEntity;
 import lombok.Value;
 
 import java.time.ZonedDateTime;
@@ -18,7 +18,7 @@ public class MatchView {
     ZonedDateTime when;
     Set<PlayerBet> bets;
 
-    static MatchView withHiddenBets(IncomingMatchesReadModelEntity entity, String loggedUsername) {
+    static MatchView withHiddenBets(MatchesReadModelEntity entity, String loggedUsername) {
         return new MatchView(
                 entity.matchId(),
                 entity.homeTeamName(),
@@ -28,7 +28,7 @@ public class MatchView {
         );
     }
 
-    static MatchView withAllBets(IncomingMatchesReadModelEntity entity) {
+    static MatchView withAllBets(MatchesReadModelEntity entity) {
         return new MatchView(
                 entity.matchId(),
                 entity.homeTeamName(),
@@ -38,13 +38,13 @@ public class MatchView {
         );
     }
 
-    private static Set<PlayerBet> toPlayerBets(List<IncomingMatchesReadModelEntity.Bet> bets) {
+    private static Set<PlayerBet> toPlayerBets(List<MatchesReadModelEntity.Bet> bets) {
         return toPlayerBets(bets, bet -> true);
     }
 
     private static Set<PlayerBet> toPlayerBets(
-            List<IncomingMatchesReadModelEntity.Bet> bets,
-            Predicate<IncomingMatchesReadModelEntity.Bet> filter) {
+            List<MatchesReadModelEntity.Bet> bets,
+            Predicate<MatchesReadModelEntity.Bet> filter) {
         return bets
                 .stream()
                 .filter(filter)

@@ -8,7 +8,7 @@ import com.github.matek2305.betting.core.match.domain.external.Origin;
 import com.github.matek2305.betting.core.room.domain.AddExternalMatchCommand;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatch;
 import com.github.matek2305.betting.core.room.domain.AddIncomingMatchCommand;
-import com.github.matek2305.betting.core.room.readmodel.IncomingMatchesReadModel;
+import com.github.matek2305.betting.core.room.readmodel.MatchesReadModel;
 import io.quarkus.security.Authenticated;
 import io.vavr.API;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class BettingRoomsResource {
     private static final String DEFAULT_NEXT_MATCHES_LIMIT = "10";
 
     private final AddIncomingMatch addIncomingMatch;
-    private final IncomingMatchesReadModel incomingMatchesReadModel;
+    private final MatchesReadModel matchesReadModel;
     private final LoggedUser loggedUser;
 
     @POST
@@ -56,7 +56,7 @@ public class BettingRoomsResource {
     @Path("/global/next_matches")
     @Produces(MediaType.APPLICATION_JSON)
     public List<MatchView> getNext(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
-        return incomingMatchesReadModel.findForBetting(howMany)
+        return matchesReadModel.findForBetting(howMany)
                 .stream()
                 .map(entity -> withHiddenBets(entity, loggedUser.getName()))
                 .collect(Collectors.toList());
@@ -66,7 +66,7 @@ public class BettingRoomsResource {
     @Path("/global/started_matches")
     @Produces(MediaType.APPLICATION_JSON)
     public List<MatchView> getStarted(@QueryParam("limit") @DefaultValue(DEFAULT_NEXT_MATCHES_LIMIT) int howMany) {
-        return incomingMatchesReadModel.findStarted(howMany)
+        return matchesReadModel.findStarted(howMany)
                 .stream()
                 .map(MatchView::withAllBets)
                 .collect(Collectors.toList());
